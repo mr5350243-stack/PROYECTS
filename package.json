@@ -1,0 +1,13 @@
+{
+  "name": "cerebro-imagina-lo-peor",
+  "private": true,
+  "type": "module",
+  "description": "Cortometraje motion graphics 3D (Three.js) renderizado fotograma a fotograma",
+  "scripts": {
+    "render": "node tools/render.mjs",
+    "preview": "node tools/serve.mjs"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  }
+}
