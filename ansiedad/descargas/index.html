@@ -49,9 +49,19 @@
 
 <script>
   // Lista de vídeos publicados junto a esta página
+  // parts: trozos del mismo MP4 (cada archivo publicado admite como máximo 15 MB); la página los une
   const CLIPS = [
+    { file: 'ansiedad_final_1080x1920.mp4', parts: window.FINAL_PARTS || null, title: 'Vídeo final · Ansiedad', meta: '1080 × 1920 · 30 fps · 1:41 · narración, subtítulos, títulos y efectos' },
     { file: 'prueba_10s_1080x1920.mp4', title: 'Prueba de 10 s · Escena 01', meta: '1080 × 1920 · 30 fps · 0:10 · con narración, subtítulos y efectos' },
-  ];
+  ].filter(c => !c.parts || c.parts.length);
+  const blobs = new Map();
+  async function getBlob(c) {
+    if (blobs.has(c.file)) return blobs.get(c.file);
+    const srcs = c.parts || [c.file];
+    const bufs = [];
+    for (const u of srcs) { const r = await fetch(u); if (!r.ok) throw { code: 'fetch' }; bufs.push(await r.arrayBuffer()); }
+    const b = new Blob(bufs, { type: 'video/mp4' }); blobs.set(c.file, b); return b;
+  }
 
   const list = document.getElementById('clips');
   list.style.display = 'grid'; list.style.gap = '18px';
@@ -63,16 +73,16 @@
       <div class="row"><button type="button">Descargar MP4</button><span class="status" role="status"></span></div>`;
     el.querySelector('h2').textContent = c.title;
     el.querySelector('.meta').textContent = c.meta;
-    el.querySelector('video').src = c.file;
+    const vid = el.querySelector('video');
+    if (c.parts) { vid.poster = c.poster || ''; getBlob(c).then(b => { vid.src = URL.createObjectURL(b); }).catch(() => {}); }
+    else vid.src = c.file;
     const btn = el.querySelector('button'), st = el.querySelector('.status');
     btn.addEventListener('click', async () => {
       st.className = 'status'; st.textContent = 'Preparando el archivo…'; btn.disabled = true;
       try {
         const downloads = await dl;
         if (!downloads) throw { code: 'unavailable' };
-        const res = await fetch(c.file);
-        if (!res.ok) throw { code: 'fetch' };
-        const blob = await res.blob();
+        const blob = await getBlob(c);
         st.textContent = 'Confirma la descarga en el aviso.';
         await downloads.save({ filename: c.file, data: blob });
         st.textContent = 'Descargado.';
