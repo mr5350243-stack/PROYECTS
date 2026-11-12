@@ -13,6 +13,8 @@ for (const S of SCENES) {
   const layer = el('g', { id: S.id, visibility: 'hidden' }, world);
   scenes.push({ ...S, layer, inst: mod.create(layer) });
 }
+// orden de capas: por defecto el de la línea de tiempo; una escena puede pedir quedar encima (z)
+[...scenes].sort((a, b) => (a.z ?? 0) - (b.z ?? 0)).forEach(s => world.appendChild(s.layer));
 const caps = makeCaptionSystem(document.getElementById('caps'), CAPTIONS, FX);
 
 function renderFrame(t) {

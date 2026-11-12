@@ -10,36 +10,94 @@ import { el, set, clamp, lerp, ramp, E, C, f1, f3, tr, win } from './lib.js';
 const STROKE = { stroke: C.ink, 'paint-order': 'stroke', 'stroke-linejoin': 'round' };
 
 // ---------------------------------------------------------------- TIPO E
+// Rótulos editoriales: cada línea entra sobre una banda inclinada azul oscuro (con canto naranja) que se despliega;
+// el texto sube desde una máscara. Las palabras clave son más grandes y, al pronunciarse, un marcador amarillo
+// las barre (el texto pasa a azul). Salida: el texto sube y la banda se recoge. Inclinación alterna por grupo.
 export function makeClean(parent, CAPS) {
   const root = el('g', { id: 'clean' }, parent);
-  const SIZE = 58, LH = 72;
-  CAPS.forEach(c => {
-    c.g = el('g', { opacity: 0 }, root);
-    c.words = [];
-    c.texts = c.lines.map((ln, li) => {
-      const t = el('text', { x: 540, y: 0, 'font-size': SIZE, 'font-weight': 800, 'text-anchor': 'middle', 'stroke-width': 13, ...STROKE, filter: 'url(#capShadow)' }, c.g);
+  const SIZE = 54, KSIZE = 68, LH = 104, SKEW = -9, MAXW = 940;
+  CAPS.forEach((c, gi) => {
+    c.g = el('g', { visibility: 'hidden' }, root);
+    c.words = []; c.idx = gi;
+    c.lineEls = c.lines.map((ln, li) => {
+      const lr = el('g', {}, c.g);
+      const strip = el('path', { fill: C.ink, opacity: 0.9, filter: 'url(#capShadow)' }, lr);
+      const edge = el('path', { fill: gi % 3 === 2 ? C.yellow : C.orange }, lr);
+      const cid = `capclip${gi}_${li}`;
+      const clipR = el('rect', {}, el('clipPath', { id: cid }, lr));
+      const mask = el('g', { 'clip-path': `url(#${cid})` }, lr);
+      const move = el('g', {}, mask);
+      const hls = el('g', {}, move);
+      const t = el('text', { x: 0, y: 0, 'text-anchor': 'middle', 'font-weight': 800, 'font-size': SIZE, fill: C.white, 'letter-spacing': 0.5 }, move);
+      const words = [];
       ln.forEach(([w, ws, key], wi) => {
-        const sp = el('tspan', { fill: '#ffffff' }, t);
-        sp.textContent = (wi ? ' ' : '') + w.replace(/ /g, ' ');
-        c.words.push({ sp, ws, key });
+        if (wi) { const sp = el('tspan', { 'font-size': SIZE }, t); sp.textContent = ' '; }
+        const sp = el('tspan', key ? { 'font-size': KSIZE, 'font-weight': 900, fill: C.yellow } : {}, t);
+        sp.textContent = w.replace(/ /g, ' ').toUpperCase();
+        const W_ = { sp, ws, key, text: sp.textContent };
+        words.push(W_); c.words.push(W_);
       });
-      return t;
+      return { lr, strip, edge, clipR, move, hls, t, words, hasKey: ln.some(x => x[2]) };
     });
   });
-  // ctx.capY: centro vertical (la escena puede moverlo para no tapar rostros) · ctx.capHide: 0..1
+  // medidas (una vez cargadas las fuentes)
+  function layout(c) {
+    c.lineEls.forEach((L, li) => {
+      let w = L.t.getComputedTextLength();
+      L.fit = Math.min(1, MAXW / (w + 80)); 
+      const h = L.hasKey ? 96 : 80, pad = L.hasKey ? 56 : 40;
+      L.w = w + pad * 2; L.h = h;
+      const sk = Math.tan(SKEW * Math.PI / 180) * h;
+      const x0 = -L.w / 2, top = -h * 0.7, bot = h * 0.3;
+      L.shape = { x0, top, bot, sk };
+      set(L.strip, { d: `M ${f1(x0 - sk / 2)} ${f1(top)} L ${f1(x0 + L.w - sk / 2)} ${f1(top)} L ${f1(x0 + L.w + sk / 2)} ${f1(bot)} L ${f1(x0 + sk / 2)} ${f1(bot)} Z` });
+      set(L.edge, { d: `M ${f1(x0 - sk / 2)} ${f1(top)} L ${f1(x0 - sk / 2 + 14)} ${f1(top)} L ${f1(x0 + sk / 2 + 14)} ${f1(bot)} L ${f1(x0 + sk / 2)} ${f1(bot)} Z` });
+      set(L.clipR, { x: f1(x0 - 40), y: f1(top + 4), width: f1(L.w + 80), height: f1(h - 8) });
+      // marcadores de las palabras clave
+      let ci = 0;
+      L.words.forEach(W_ => {
+        const n = W_.sp.textContent.length;
+        if (W_.key) {
+          const xa = L.t.getStartPositionOfChar(ci).x, xb = L.t.getEndPositionOfChar(ci + n - 1).x;
+          W_.hl = el('rect', { x: f1(xa - 8), y: f1(-KSIZE * 0.82), width: f1(xb - xa + 16), height: f1(KSIZE * 1.0), rx: 6, fill: C.yellow, transform: `skewX(${SKEW})` }, L.hls);
+          W_.hx = xa - 8; W_.hw = xb - xa + 16;
+        }
+        ci += n + 1;
+      });
+    });
+    c.laid = true;
+  }
   function render(t, ctx = {}) {
-    const y0 = ctx.capY ?? 1440;
+    const y0 = ctx.capY ?? 1440, hide = ctx.capHide ?? 0;
     CAPS.forEach(c => {
-      if (t < c.s - 0.3 || t > c.e + 0.3) { if (c.vis) { set(c.g, { opacity: 0 }); c.vis = false; } return; }
-      c.vis = true;
-      // sin solapes: el grupo saliente termina de desvanecerse justo antes de que entre el siguiente
-      const a = ramp(t, c.s - 0.02, c.s + 0.16, E.out) * (1 - ramp(t, c.e - 0.13, c.e - 0.03, E.lin)) * (1 - (ctx.capHide ?? 0));
-      const rise = 16 * (1 - ramp(t, c.s - 0.05, c.s + 0.24, E.out));
-      const n = c.texts.length;
-      c.texts.forEach((tx, i) => set(tx, { y: f1(y0 + (i - (n - 1) / 2) * LH + 20) }));
-      set(c.g, { opacity: f3(a), transform: `translate(0,${f1(rise)})` });
-      // resaltado selectivo: solo las palabras clave pasan a amarillo cuando se pronuncian
-      c.words.forEach(w => { if (w.key) set(w.sp, { fill: t >= w.ws - 0.05 ? C.yellow : '#ffffff' }); });
+      const on = t >= c.s && t < c.e && hide < 1;
+      set(c.g, { visibility: on ? 'visible' : 'hidden' });
+      if (!on) return;
+      if (!c.laid) layout(c);
+      const n = c.lineEls.length;
+      const rot = (c.idx % 2 ? 1.3 : -1.6) * (1 - 0.4 * ramp(t, c.s, c.e));
+      const fy = Math.sin(t * 1.7 + c.idx) * 3;
+      set(c.g, { opacity: f3(1 - hide), transform: `translate(540,${f1(y0 + fy)}) rotate(${f1(rot)})` });
+      const ke = ramp(t, c.e - 0.17, c.e - 0.01, E.in);
+      c.lineEls.forEach((L, li) => {
+        const d = li * 0.08, off = n > 1 ? (li ? 26 : -26) : 0;
+        const ly = (li - (n - 1) / 2) * LH + 24;
+        set(L.lr, { transform: `translate(${f1(off)},${f1(ly)}) scale(${f3(L.fit)})` });
+        // banda: se despliega desde la izquierda y se recoge hacia la derecha
+        const k1 = ramp(t, c.s + d, c.s + d + 0.22, E.out5);
+        const sx = k1 * (1 - ke), ox = ke > 0 ? L.shape.x0 + L.w : L.shape.x0;
+        const st = `translate(${f1(ox)},0) scale(${f3(Math.max(0.001, sx))},1) translate(${f1(-ox)},0)`;
+        set(L.strip, { transform: st }); set(L.edge, { transform: st, opacity: f3(k1 * (1 - ke)) });
+        // texto: sube desde la máscara; al salir sigue subiendo
+        const k2 = ramp(t, c.s + d + 0.03, c.s + d + 0.32, E.out5);
+        set(L.move, { transform: `translate(0,${f1((1 - k2) * 90 - ke * 90)})` });
+        L.words.forEach(W_ => {
+          if (!W_.key) return;
+          const kh = ramp(t, W_.ws - 0.06, W_.ws + 0.16, E.out);
+          set(W_.hl, { transform: `translate(${f1(W_.hx)},0) scale(${f3(Math.max(0.001, kh))},1) translate(${f1(-W_.hx)},0) skewX(${SKEW})` });
+          set(W_.sp, { fill: kh > 0.45 ? C.ink : C.yellow });
+        });
+      });
     });
   }
   return { render };
@@ -188,11 +246,37 @@ export function makeTracking(parent, f) {
   return { render };
 }
 
+// ---------------------------------------------------------------- TIPO S (título apilado, variante de A para frases)
+// lines: [[texto, color, tamaño]] — cada línea sube desde una máscara con rebote controlado y ligera rotación.
+export function makeStack(parent, f) {
+  const g = el('g', { opacity: 0 }, parent);
+  let y = 0;
+  const L = f.lines.map(([txt, color, size], i) => {
+    y += size * (i ? 1.02 : 0.8);
+    const cid = `stk${Math.round(f.s * 100)}_${i}`;
+    el('rect', { x: -700, y: f1(y - size * 0.9), width: 1400, height: f1(size * 1.12) }, el('clipPath', { id: cid }, g));
+    const m = el('g', { 'clip-path': `url(#${cid})` }, g);
+    const t = el('text', { x: 0, y: f1(y), 'font-size': size, 'font-weight': 900, 'text-anchor': 'middle', fill: color, 'stroke-width': size * 0.1, ...STROKE, 'letter-spacing': -size * 0.02 }, m);
+    t.textContent = txt; return { t, size, y };
+  });
+  const total = y;
+  function render(time) {
+    if (time < f.s - 0.1 || time > f.e + 0.1) { set(g, { opacity: 0 }); return; }
+    const out = ramp(time, f.e - 0.3, f.e, E.in);
+    set(g, { opacity: f3(1 - out), transform: tr(f.x ?? 540, (f.y ?? 300) - total / 2 - out * 40, 1, f.rot ?? -2) });
+    L.forEach((l, i) => {
+      const k = ramp(time, f.s + i * (f.stagger ?? 0.16), f.s + i * (f.stagger ?? 0.16) + 0.45, E.back);
+      set(l.t, { transform: `translate(0,${f1((1 - k) * l.size * 1.1)})` });
+    });
+  }
+  return { render };
+}
+
 // ---------------------------------------------------------------- orquestador
 export function makeCaptionSystem(parent, CAPS, FX) {
   const fxLayer = el('g', { id: 'fx' }, parent);
   const clean = makeClean(el('g', {}, parent), CAPS);
-  const make = { A: makeImpact, B: makeMorph, C: makeNumber, D: makeTracking };
+  const make = { A: makeImpact, B: makeMorph, C: makeNumber, D: makeTracking, S: makeStack };
   const items = FX.map(f => ({ f, r: make[f.type](fxLayer, f) }));
   return {
     render(t, ctx) { items.forEach(it => it.r.render(t, ctx)); clean.render(t, ctx); },
