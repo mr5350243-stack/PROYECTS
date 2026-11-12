@@ -53,6 +53,11 @@
     <p class="note">Incluye locución, subtítulos cinéticos, tipografía animada, música y efectos.</p>
     <div class="row"><button type="button" id="dl">Descargar MP4 (1080p)</button><span class="status" id="st" role="status"></span></div>
   </article>
+  <article class="clip">
+    <img src="portada_1080x1920.jpg" alt="Portada del episodio 01: un ojo con un gorila dentro de la pupila y el titular «¿Lo viste?»" style="width:100%;max-width:100%;aspect-ratio:9/16;max-height:72vh;object-fit:contain;border-radius:12px;display:block;margin:0 auto;background:#000">
+    <ul class="meta"><li>PORTADA</li><li>1080 × 1920</li><li>PNG</li></ul>
+    <div class="row"><button type="button" id="dlc">Descargar portada (PNG)</button><span class="status" id="stc" role="status"></span></div>
+  </article>
 </main>
 
 <script>
@@ -71,6 +76,20 @@
   }
   const dl = (window.claude && claude.use) ? claude.use('downloads') : Promise.resolve(null);
   const btn = document.getElementById('dl'), st = document.getElementById('st');
+  document.getElementById('dlc').addEventListener('click', async (ev) => {
+    const b2 = ev.currentTarget, s2 = document.getElementById('stc');
+    s2.className = 'status'; s2.textContent = 'Preparando…'; b2.disabled = true;
+    try {
+      const downloads = await dl; if (!downloads) throw { code: 'unavailable' };
+      const r = await fetch('portada_1080x1920.png'); if (!r.ok) throw { code: 'fetch' };
+      s2.textContent = 'Confirma la descarga en el aviso.';
+      await downloads.save({ filename: 'detras_del_porque_ep01_portada.png', data: await r.blob() });
+      s2.textContent = 'Descargada.';
+    } catch (e) {
+      s2.className = 'status err';
+      s2.textContent = e && e.code === 'declined' ? 'Descarga cancelada.' : 'Esta vista no permite descargas. Abre la página en claude.ai desde un navegador.';
+    } finally { b2.disabled = false; }
+  });
   btn.addEventListener('click', async () => {
     st.className = 'status'; st.textContent = 'Preparando el archivo…'; btn.disabled = true;
     try {
