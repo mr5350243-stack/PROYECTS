@@ -19,3 +19,4 @@ ep01/output/*.png
 ep01/audio/mix_pre.wav
 ep01/audio/voz.wav
 ep01/render/
+ep01/output/*/
