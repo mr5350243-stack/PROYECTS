@@ -2,3 +2,7 @@ node_modules/
 render/
 *.log
 audio/*.wav
+ansiedad/render*/
+ansiedad/audio/music.wav
+ansiedad/audio/sfx.wav
+__pycache__/

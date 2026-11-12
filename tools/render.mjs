@@ -1,5 +1,5 @@
 // Render determinista fotograma a fotograma en Chromium headless (WebGL), en paralelo por tramos.
-// Uso: node tools/render.mjs [workers=3] [fps=30] [desde_s] [hasta_s]
+// Uso: [PROJECT=video] [SCALE=1] [OUT=render] [MSAA=4] node tools/render.mjs [workers=3] [fps=30] [desde_s] [hasta_s]
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -8,13 +8,15 @@ import { startServer } from './serve.mjs';
 const { chromium } = createRequire(import.meta.url)('playwright');
 
 const WORKERS = Number(process.argv[2] || 3), FPS = Number(process.argv[3] || 30);
-const OUT = path.resolve('render');
+const PROJECT = process.env.PROJECT || 'video', SCALE = Number(process.env.SCALE || 1);
+const OUT = path.resolve(process.env.OUT || 'render');
+const VW = Math.round(1080 * SCALE), VH = Math.round(1920 * SCALE);
 fs.mkdirSync(OUT, { recursive: true });
 const server = await startServer(0);
-const url = `http://127.0.0.1:${server.address().port}/?scale=1`;
+const url = `http://127.0.0.1:${server.address().port}/?scale=${SCALE}&project=${PROJECT}${process.env.MSAA ? '&msaa=' + process.env.MSAA : ''}`;
 
 const probe = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const pp = await probe.newPage({ viewport: { width: 1080, height: 1920 } });
+const pp = await probe.newPage({ viewport: { width: VW, height: VH } });
 await pp.goto(url); await pp.waitForFunction(() => window.ready === true);
 const DURATION = await pp.evaluate(() => window.DURATION);
 await probe.close();
@@ -26,7 +28,7 @@ console.log(`Duración ${DURATION}s → fotogramas ${F0}..${F1} (${total}) en ${
 
 async function worker(w) {
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
+  const page = await browser.newPage({ viewport: { width: VW, height: VH } });
   page.on('pageerror', e => console.log(`[w${w}] pageerror`, e.message));
   await page.goto(url); await page.waitForFunction(() => window.ready === true);
   while (queue.length) { const [a, b] = queue.shift(); await chunk(w, page, a, b); }

@@ -4,9 +4,12 @@ import * as THREE from 'three';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { TIMELINE, TRANSITIONS } from './timeline.js';
-
 const params = new URLSearchParams(location.search);
+// Proyecto: cada uno tiene su propia línea de tiempo, escenas y capa de texto opcional (/<proyecto>/src/...).
+const PROJECT = params.get('project') || 'video';
+const TL = await import(`/${PROJECT}/src/timeline.js`);
+const { TIMELINE, TRANSITIONS } = TL;
+window.FADE_OUT = TL.FADE_OUT || 2.2;
 const SCALE = Number(params.get('scale') || 1);
 const W = Math.round(1080 * SCALE), H = Math.round(1920 * SCALE);
 
@@ -95,10 +98,11 @@ const finalMat = new THREE.ShaderMaterial({
   uniforms: {
     tA: { value: null }, tB: { value: null }, mixK: { value: 0 }, mode: { value: 0 }, time: { value: 0 },
     vignette: { value: 0.35 }, grain: { value: 0.035 }, fade: { value: 1 }, flashColor: { value: new THREE.Color(1, 1, 1) }, aspect: { value: W / H }, center: { value: new THREE.Vector2(0.5, 0.5) },
+    tText: { value: null }, hasText: { value: 0 }, textFade: { value: 1 },
   },
   vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`,
   fragmentShader: `
-    uniform sampler2D tA, tB; uniform float mixK, mode, time, vignette, grain, fade, aspect; uniform vec3 flashColor; uniform vec2 center; varying vec2 vUv;
+    uniform sampler2D tA, tB, tText; uniform float mixK, mode, time, vignette, grain, fade, aspect, hasText, textFade; uniform vec3 flashColor; uniform vec2 center; varying vec2 vUv;
     vec3 aces(vec3 x){ const float a=2.51,b=.03,c=2.43,d=.59,e=.14; return clamp((x*(a*x+b))/(x*(c*x+d)+e),0.,1.); }
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
     float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
@@ -132,18 +136,32 @@ const finalMat = new THREE.ShaderMaterial({
       vec2 v = vUv - .5; v.x *= aspect;
       c *= 1. - vignette * smoothstep(.25, .95, length(v)*1.25);
       c += (h(vUv*vec2(1920.,1080.) + fract(time*7.31)) - .5) * grain;
+      if (hasText > 0.5) { vec4 tx = texture2D(tText, vUv); c = mix(c, tx.rgb, tx.a * textFade); }
       gl_FragColor = vec4(c * fade, 1.);
     }`,
   depthTest: false, depthWrite: false,
 });
 const finalQuad = new FullScreenQuad(finalMat);
 
+// ---------- Capa de texto (subtítulos y títulos cinéticos), opcional por proyecto ----------
+let overlay = null;
+if (!params.has('notext')) {
+  try { const m = await import(`/${PROJECT}/src/overlay.js`); overlay = await m.createOverlay(W, H); } catch (e) { if (!String(e).includes('Failed to fetch')) console.error(e); }
+}
+const textTex = overlay ? new THREE.CanvasTexture(overlay.canvas) : null;
+if (textTex) { textTex.colorSpace = THREE.NoColorSpace; textTex.minFilter = THREE.LinearFilter; textTex.generateMipmaps = false; }
+function drawText(t) {
+  if (!overlay) { finalMat.uniforms.hasText.value = 0; return; }
+  overlay.draw(t); textTex.needsUpdate = true;
+  finalMat.uniforms.tText.value = textTex; finalMat.uniforms.hasText.value = 1;
+}
+
 // ---------- Escenas ----------
 const ctx = { THREE, renderer, envTex, W, H, aspect: W / H };
 const loaded = new Map();
 async function getScene(def) {
   if (!loaded.has(def.id)) {
-    const mod = await import(`./scenes/${def.id}.js`);
+    const mod = await import(`/${PROJECT}/src/scenes/${def.id}.js`);
     const s = mod.create(ctx);
     s.camera.aspect = W / H; s.camera.updateProjectionMatrix();
     if (s.scene.environment === undefined || s.scene.environment === null) s.scene.environment = envTex;
@@ -187,6 +205,7 @@ async function renderFrame(t) {
     const s = await getScene({ id: params.get('scene') });
     const post = renderSceneTo(s, t, rtA);
     finalMat.uniforms.mode.value = 0; finalMat.uniforms.tA.value = rtA.texture; finalMat.uniforms.time.value = t; finalMat.uniforms.vignette.value = post.vignette; finalMat.uniforms.fade.value = 1;
+    drawText(t + Number(params.get('offset') || 0));
     renderer.setRenderTarget(null); finalQuad.render(renderer); return;
   }
   // escena activa
@@ -219,8 +238,9 @@ async function renderFrame(t) {
   finalMat.uniforms.tB.value = rtB.texture;
   finalMat.uniforms.time.value = t;
   finalMat.uniforms.vignette.value = post.vignette;
+  drawText(t);
   // fundido de entrada y fundido final a negro
-  finalMat.uniforms.fade.value = Math.min(1, Math.max(0, t / 0.6)) * Math.min(1, Math.max(0, (END - t) / 2.2));
+  finalMat.uniforms.fade.value = Math.min(1, Math.max(0, t / 0.6)) * Math.min(1, Math.max(0, (END - t) / (window.FADE_OUT || 2.2)));
   renderer.setRenderTarget(null);
   finalQuad.render(renderer);
 }

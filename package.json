@@ -8,6 +8,7 @@
     "preview": "node tools/serve.mjs"
   },
   "dependencies": {
+    "@fontsource/montserrat": "^5.2.8",
     "three": "0.160.0"
   }
 }

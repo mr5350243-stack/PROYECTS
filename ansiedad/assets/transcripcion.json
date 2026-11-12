@@ -1,0 +1,1327 @@
+[
+ {
+  "start": 0.0,
+  "end": 2.68,
+  "text": "¿Por qué tu cerebro activa un alarma sin peligro?",
+  "words": [
+   {
+    "w": " ¿Por",
+    "s": 0.0,
+    "e": 0.14
+   },
+   {
+    "w": " qué",
+    "s": 0.14,
+    "e": 0.3
+   },
+   {
+    "w": " tu",
+    "s": 0.3,
+    "e": 0.42
+   },
+   {
+    "w": " cerebro",
+    "s": 0.42,
+    "e": 0.84
+   },
+   {
+    "w": " activa",
+    "s": 0.84,
+    "e": 1.26
+   },
+   {
+    "w": " un",
+    "s": 1.26,
+    "e": 1.42
+   },
+   {
+    "w": " alarma",
+    "s": 1.42,
+    "e": 1.86
+   },
+   {
+    "w": " sin",
+    "s": 1.86,
+    "e": 2.14
+   },
+   {
+    "w": " peligro?",
+    "s": 2.14,
+    "e": 2.68
+   }
+  ]
+ },
+ {
+  "start": 3.54,
+  "end": 7.94,
+  "text": "¿Sabías que la ansiedad puede hacer que tu cuerpo reaccione como si estuvieras en peligro",
+  "words": [
+   {
+    "w": " ¿Sabías",
+    "s": 3.54,
+    "e": 3.9
+   },
+   {
+    "w": " que",
+    "s": 3.9,
+    "e": 4.1
+   },
+   {
+    "w": " la",
+    "s": 4.1,
+    "e": 4.22
+   },
+   {
+    "w": " ansiedad",
+    "s": 4.22,
+    "e": 4.66
+   },
+   {
+    "w": " puede",
+    "s": 4.66,
+    "e": 4.9
+   },
+   {
+    "w": " hacer",
+    "s": 4.9,
+    "e": 5.18
+   },
+   {
+    "w": " que",
+    "s": 5.18,
+    "e": 5.34
+   },
+   {
+    "w": " tu",
+    "s": 5.34,
+    "e": 5.48
+   },
+   {
+    "w": " cuerpo",
+    "s": 5.48,
+    "e": 5.8
+   },
+   {
+    "w": " reaccione",
+    "s": 5.8,
+    "e": 6.38
+   },
+   {
+    "w": " como",
+    "s": 6.38,
+    "e": 6.62
+   },
+   {
+    "w": " si",
+    "s": 6.62,
+    "e": 6.76
+   },
+   {
+    "w": " estuvieras",
+    "s": 6.76,
+    "e": 7.28
+   },
+   {
+    "w": " en",
+    "s": 7.28,
+    "e": 7.42
+   },
+   {
+    "w": " peligro",
+    "s": 7.42,
+    "e": 7.94
+   }
+  ]
+ },
+ {
+  "start": 7.94,
+  "end": 10.44,
+  "text": "aunque estés sentado tranquilamente en tu casa?",
+  "words": [
+   {
+    "w": " aunque",
+    "s": 7.94,
+    "e": 8.32
+   },
+   {
+    "w": " estés",
+    "s": 8.32,
+    "e": 8.66
+   },
+   {
+    "w": " sentado",
+    "s": 8.66,
+    "e": 9.1
+   },
+   {
+    "w": " tranquilamente",
+    "s": 9.1,
+    "e": 9.84
+   },
+   {
+    "w": " en",
+    "s": 9.84,
+    "e": 10.08
+   },
+   {
+    "w": " tu",
+    "s": 10.08,
+    "e": 10.18
+   },
+   {
+    "w": " casa?",
+    "s": 10.18,
+    "e": 10.44
+   }
+  ]
+ },
+ {
+  "start": 11.18,
+  "end": 16.72,
+  "text": "Tu corazón se acelera, tus músculos se tensan y empiezas a imaginar que algo malo va a suceder.",
+  "words": [
+   {
+    "w": " Tu",
+    "s": 11.18,
+    "e": 11.3
+   },
+   {
+    "w": " corazón",
+    "s": 11.3,
+    "e": 11.6
+   },
+   {
+    "w": " se",
+    "s": 11.6,
+    "e": 11.82
+   },
+   {
+    "w": " acelera,",
+    "s": 11.82,
+    "e": 12.3
+   },
+   {
+    "w": " tus",
+    "s": 12.62,
+    "e": 12.7
+   },
+   {
+    "w": " músculos",
+    "s": 12.7,
+    "e": 13.14
+   },
+   {
+    "w": " se",
+    "s": 13.14,
+    "e": 13.36
+   },
+   {
+    "w": " tensan",
+    "s": 13.36,
+    "e": 13.86
+   },
+   {
+    "w": " y",
+    "s": 13.86,
+    "e": 14.28
+   },
+   {
+    "w": " empiezas",
+    "s": 14.28,
+    "e": 14.64
+   },
+   {
+    "w": " a",
+    "s": 14.64,
+    "e": 14.76
+   },
+   {
+    "w": " imaginar",
+    "s": 14.76,
+    "e": 15.12
+   },
+   {
+    "w": " que",
+    "s": 15.12,
+    "e": 15.36
+   },
+   {
+    "w": " algo",
+    "s": 15.36,
+    "e": 15.58
+   },
+   {
+    "w": " malo",
+    "s": 15.58,
+    "e": 16.02
+   },
+   {
+    "w": " va",
+    "s": 16.02,
+    "e": 16.16
+   },
+   {
+    "w": " a",
+    "s": 16.16,
+    "e": 16.24
+   },
+   {
+    "w": " suceder.",
+    "s": 16.24,
+    "e": 16.72
+   }
+  ]
+ },
+ {
+  "start": 17.22,
+  "end": 19.1,
+  "text": "Pero ¿qué está pasando realmente?",
+  "words": [
+   {
+    "w": " Pero",
+    "s": 17.22,
+    "e": 17.5
+   },
+   {
+    "w": " ¿qué",
+    "s": 17.5,
+    "e": 18.0
+   },
+   {
+    "w": " está",
+    "s": 18.0,
+    "e": 18.22
+   },
+   {
+    "w": " pasando",
+    "s": 18.22,
+    "e": 18.66
+   },
+   {
+    "w": " realmente?",
+    "s": 18.66,
+    "e": 19.1
+   }
+  ]
+ },
+ {
+  "start": 20.06,
+  "end": 23.12,
+  "text": "La ansiedad forma parte de nuestro sistema de protección.",
+  "words": [
+   {
+    "w": " La",
+    "s": 20.06,
+    "e": 20.42
+   },
+   {
+    "w": " ansiedad",
+    "s": 20.42,
+    "e": 20.9
+   },
+   {
+    "w": " forma",
+    "s": 20.9,
+    "e": 21.18
+   },
+   {
+    "w": " parte",
+    "s": 21.18,
+    "e": 21.54
+   },
+   {
+    "w": " de",
+    "s": 21.54,
+    "e": 21.72
+   },
+   {
+    "w": " nuestro",
+    "s": 21.72,
+    "e": 21.86
+   },
+   {
+    "w": " sistema",
+    "s": 21.86,
+    "e": 22.44
+   },
+   {
+    "w": " de",
+    "s": 22.44,
+    "e": 22.58
+   },
+   {
+    "w": " protección.",
+    "s": 22.58,
+    "e": 23.12
+   }
+  ]
+ },
+ {
+  "start": 23.74,
+  "end": 27.78,
+  "text": "El cerebro intenta anticipar amenazas para prepararnos antes de que ocurran.",
+  "words": [
+   {
+    "w": " El",
+    "s": 23.74,
+    "e": 23.92
+   },
+   {
+    "w": " cerebro",
+    "s": 23.92,
+    "e": 24.3
+   },
+   {
+    "w": " intenta",
+    "s": 24.3,
+    "e": 24.72
+   },
+   {
+    "w": " anticipar",
+    "s": 24.72,
+    "e": 25.2
+   },
+   {
+    "w": " amenazas",
+    "s": 25.2,
+    "e": 25.74
+   },
+   {
+    "w": " para",
+    "s": 25.74,
+    "e": 26.0
+   },
+   {
+    "w": " prepararnos",
+    "s": 26.0,
+    "e": 26.6
+   },
+   {
+    "w": " antes",
+    "s": 26.6,
+    "e": 27.04
+   },
+   {
+    "w": " de",
+    "s": 27.04,
+    "e": 27.24
+   },
+   {
+    "w": " que",
+    "s": 27.24,
+    "e": 27.32
+   },
+   {
+    "w": " ocurran.",
+    "s": 27.32,
+    "e": 27.78
+   }
+  ]
+ },
+ {
+  "start": 28.34,
+  "end": 29.62,
+  "text": "Y aquí viene lo interesante.",
+  "words": [
+   {
+    "w": " Y",
+    "s": 28.1,
+    "e": 28.5
+   },
+   {
+    "w": " aquí",
+    "s": 28.5,
+    "e": 28.76
+   },
+   {
+    "w": " viene",
+    "s": 28.76,
+    "e": 29.1
+   },
+   {
+    "w": " lo",
+    "s": 29.1,
+    "e": 29.22
+   },
+   {
+    "w": " interesante.",
+    "s": 29.22,
+    "e": 29.62
+   }
+  ]
+ },
+ {
+  "start": 30.58,
+  "end": 34.64,
+  "text": "En un experimento, investigadores estudiaron cómo reaccionaban las personas",
+  "words": [
+   {
+    "w": " En",
+    "s": 30.58,
+    "e": 30.64
+   },
+   {
+    "w": " un",
+    "s": 30.64,
+    "e": 30.78
+   },
+   {
+    "w": " experimento,",
+    "s": 30.78,
+    "e": 31.68
+   },
+   {
+    "w": " investigadores",
+    "s": 31.9,
+    "e": 32.4
+   },
+   {
+    "w": " estudiaron",
+    "s": 32.4,
+    "e": 33.02
+   },
+   {
+    "w": " cómo",
+    "s": 33.02,
+    "e": 33.34
+   },
+   {
+    "w": " reaccionaban",
+    "s": 33.34,
+    "e": 33.98
+   },
+   {
+    "w": " las",
+    "s": 33.98,
+    "e": 34.16
+   },
+   {
+    "w": " personas",
+    "s": 34.16,
+    "e": 34.64
+   }
+  ]
+ },
+ {
+  "start": 34.64,
+  "end": 39.48,
+  "text": "ante estímulos desagradables que podían aparecer de forma predecible o inesperada.",
+  "words": [
+   {
+    "w": " ante",
+    "s": 34.64,
+    "e": 34.94
+   },
+   {
+    "w": " estímulos",
+    "s": 34.94,
+    "e": 35.4
+   },
+   {
+    "w": " desagradables",
+    "s": 35.4,
+    "e": 36.16
+   },
+   {
+    "w": " que",
+    "s": 36.16,
+    "e": 36.68
+   },
+   {
+    "w": " podían",
+    "s": 36.68,
+    "e": 37.0
+   },
+   {
+    "w": " aparecer",
+    "s": 37.0,
+    "e": 37.42
+   },
+   {
+    "w": " de",
+    "s": 37.42,
+    "e": 37.62
+   },
+   {
+    "w": " forma",
+    "s": 37.62,
+    "e": 37.86
+   },
+   {
+    "w": " predecible",
+    "s": 37.86,
+    "e": 38.56
+   },
+   {
+    "w": " o",
+    "s": 38.56,
+    "e": 38.9
+   },
+   {
+    "w": " inesperada.",
+    "s": 38.9,
+    "e": 39.48
+   }
+  ]
+ },
+ {
+  "start": 40.22,
+  "end": 46.28,
+  "text": "Descubrieron que, bajo determinadas condiciones, la incertidumbre aumentaba la respuesta de sobresalto.",
+  "words": [
+   {
+    "w": " Descubrieron",
+    "s": 40.22,
+    "e": 40.88
+   },
+   {
+    "w": " que,",
+    "s": 40.88,
+    "e": 41.08
+   },
+   {
+    "w": " bajo",
+    "s": 41.44,
+    "e": 41.58
+   },
+   {
+    "w": " determinadas",
+    "s": 41.58,
+    "e": 42.24
+   },
+   {
+    "w": " condiciones,",
+    "s": 42.24,
+    "e": 42.64
+   },
+   {
+    "w": " la",
+    "s": 43.42,
+    "e": 43.5
+   },
+   {
+    "w": " incertidumbre",
+    "s": 43.5,
+    "e": 44.24
+   },
+   {
+    "w": " aumentaba",
+    "s": 44.24,
+    "e": 44.84
+   },
+   {
+    "w": " la",
+    "s": 44.84,
+    "e": 44.98
+   },
+   {
+    "w": " respuesta",
+    "s": 44.98,
+    "e": 45.44
+   },
+   {
+    "w": " de",
+    "s": 45.44,
+    "e": 45.64
+   },
+   {
+    "w": " sobresalto.",
+    "s": 45.64,
+    "e": 46.28
+   }
+  ]
+ },
+ {
+  "start": 46.84,
+  "end": 50.48,
+  "text": "Es decir, no siempre nos inquieta solamente el peligro,",
+  "words": [
+   {
+    "w": " Es",
+    "s": 46.84,
+    "e": 46.98
+   },
+   {
+    "w": " decir,",
+    "s": 46.98,
+    "e": 47.28
+   },
+   {
+    "w": " no",
+    "s": 47.84,
+    "e": 48.02
+   },
+   {
+    "w": " siempre",
+    "s": 48.02,
+    "e": 48.4
+   },
+   {
+    "w": " nos",
+    "s": 48.4,
+    "e": 48.6
+   },
+   {
+    "w": " inquieta",
+    "s": 48.6,
+    "e": 49.06
+   },
+   {
+    "w": " solamente",
+    "s": 49.06,
+    "e": 49.52
+   },
+   {
+    "w": " el",
+    "s": 49.52,
+    "e": 49.8
+   },
+   {
+    "w": " peligro,",
+    "s": 49.8,
+    "e": 50.48
+   }
+  ]
+ },
+ {
+  "start": 50.66,
+  "end": 53.14,
+  "text": "sino también no saber cuándo podría aparecer.",
+  "words": [
+   {
+    "w": " sino",
+    "s": 50.66,
+    "e": 50.84
+   },
+   {
+    "w": " también",
+    "s": 50.84,
+    "e": 51.24
+   },
+   {
+    "w": " no",
+    "s": 51.24,
+    "e": 51.52
+   },
+   {
+    "w": " saber",
+    "s": 51.52,
+    "e": 51.78
+   },
+   {
+    "w": " cuándo",
+    "s": 51.78,
+    "e": 52.38
+   },
+   {
+    "w": " podría",
+    "s": 52.38,
+    "e": 52.74
+   },
+   {
+    "w": " aparecer.",
+    "s": 52.74,
+    "e": 53.14
+   }
+  ]
+ },
+ {
+  "start": 53.78,
+  "end": 56.98,
+  "text": "Por ejemplo, cuando alguien tarda en responderte un mensaje,",
+  "words": [
+   {
+    "w": " Por",
+    "s": 53.6,
+    "e": 54.0
+   },
+   {
+    "w": " ejemplo,",
+    "s": 54.0,
+    "e": 54.3
+   },
+   {
+    "w": " cuando",
+    "s": 54.88,
+    "e": 55.06
+   },
+   {
+    "w": " alguien",
+    "s": 55.06,
+    "e": 55.4
+   },
+   {
+    "w": " tarda",
+    "s": 55.4,
+    "e": 55.74
+   },
+   {
+    "w": " en",
+    "s": 55.74,
+    "e": 55.84
+   },
+   {
+    "w": " responderte",
+    "s": 55.84,
+    "e": 56.34
+   },
+   {
+    "w": " un",
+    "s": 56.34,
+    "e": 56.52
+   },
+   {
+    "w": " mensaje,",
+    "s": 56.52,
+    "e": 56.98
+   }
+  ]
+ },
+ {
+  "start": 57.5,
+  "end": 60.4,
+  "text": "tu mente puede imaginar una discusión que nunca ocurrió.",
+  "words": [
+   {
+    "w": " tu",
+    "s": 57.5,
+    "e": 57.6
+   },
+   {
+    "w": " mente",
+    "s": 57.6,
+    "e": 57.82
+   },
+   {
+    "w": " puede",
+    "s": 57.82,
+    "e": 58.08
+   },
+   {
+    "w": " imaginar",
+    "s": 58.08,
+    "e": 58.54
+   },
+   {
+    "w": " una",
+    "s": 58.54,
+    "e": 58.78
+   },
+   {
+    "w": " discusión",
+    "s": 58.78,
+    "e": 59.32
+   },
+   {
+    "w": " que",
+    "s": 59.32,
+    "e": 59.52
+   },
+   {
+    "w": " nunca",
+    "s": 59.52,
+    "e": 59.82
+   },
+   {
+    "w": " ocurrió.",
+    "s": 59.82,
+    "e": 60.4
+   }
+  ]
+ },
+ {
+  "start": 60.92,
+  "end": 65.8,
+  "text": "O cuando tienes una presentación importante, puedes sentir nervios incluso días antes.",
+  "words": [
+   {
+    "w": " O",
+    "s": 60.92,
+    "e": 61.14
+   },
+   {
+    "w": " cuando",
+    "s": 61.14,
+    "e": 61.32
+   },
+   {
+    "w": " tienes",
+    "s": 61.32,
+    "e": 61.64
+   },
+   {
+    "w": " una",
+    "s": 61.64,
+    "e": 61.82
+   },
+   {
+    "w": " presentación",
+    "s": 61.82,
+    "e": 62.34
+   },
+   {
+    "w": " importante,",
+    "s": 62.34,
+    "e": 62.92
+   },
+   {
+    "w": " puedes",
+    "s": 63.38,
+    "e": 63.66
+   },
+   {
+    "w": " sentir",
+    "s": 63.66,
+    "e": 64.0
+   },
+   {
+    "w": " nervios",
+    "s": 64.0,
+    "e": 64.48
+   },
+   {
+    "w": " incluso",
+    "s": 64.48,
+    "e": 64.98
+   },
+   {
+    "w": " días",
+    "s": 64.98,
+    "e": 65.38
+   },
+   {
+    "w": " antes.",
+    "s": 65.38,
+    "e": 65.8
+   }
+  ]
+ },
+ {
+  "start": 66.62,
+  "end": 70.28,
+  "text": "La ansiedad también puede producir sensaciones físicas reales.",
+  "words": [
+   {
+    "w": " La",
+    "s": 66.62,
+    "e": 66.84
+   },
+   {
+    "w": " ansiedad",
+    "s": 66.84,
+    "e": 67.24
+   },
+   {
+    "w": " también",
+    "s": 67.24,
+    "e": 67.7
+   },
+   {
+    "w": " puede",
+    "s": 67.7,
+    "e": 68.0
+   },
+   {
+    "w": " producir",
+    "s": 68.0,
+    "e": 68.52
+   },
+   {
+    "w": " sensaciones",
+    "s": 68.52,
+    "e": 69.02
+   },
+   {
+    "w": " físicas",
+    "s": 69.02,
+    "e": 69.54
+   },
+   {
+    "w": " reales.",
+    "s": 69.54,
+    "e": 70.28
+   }
+  ]
+ },
+ {
+  "start": 70.56,
+  "end": 71.62,
+  "text": "No son inventadas.",
+  "words": [
+   {
+    "w": " No",
+    "s": 70.56,
+    "e": 70.78
+   },
+   {
+    "w": " son",
+    "s": 70.78,
+    "e": 71.02
+   },
+   {
+    "w": " inventadas.",
+    "s": 71.02,
+    "e": 71.62
+   }
+  ]
+ },
+ {
+  "start": 72.24,
+  "end": 76.46,
+  "text": "Pero sentir una alarma no significa necesariamente que exista una amenaza.",
+  "words": [
+   {
+    "w": " Pero",
+    "s": 72.24,
+    "e": 72.44
+   },
+   {
+    "w": " sentir",
+    "s": 72.44,
+    "e": 72.76
+   },
+   {
+    "w": " una",
+    "s": 72.76,
+    "e": 73.0
+   },
+   {
+    "w": " alarma",
+    "s": 73.0,
+    "e": 73.44
+   },
+   {
+    "w": " no",
+    "s": 73.44,
+    "e": 73.68
+   },
+   {
+    "w": " significa",
+    "s": 73.68,
+    "e": 74.16
+   },
+   {
+    "w": " necesariamente",
+    "s": 74.16,
+    "e": 75.06
+   },
+   {
+    "w": " que",
+    "s": 75.06,
+    "e": 75.36
+   },
+   {
+    "w": " exista",
+    "s": 75.36,
+    "e": 75.86
+   },
+   {
+    "w": " una",
+    "s": 75.86,
+    "e": 76.04
+   },
+   {
+    "w": " amenaza.",
+    "s": 76.04,
+    "e": 76.46
+   }
+  ]
+ },
+ {
+  "start": 77.14,
+  "end": 78.42,
+  "text": "Y hay algo esperanzador.",
+  "words": [
+   {
+    "w": " Y",
+    "s": 77.14,
+    "e": 77.4
+   },
+   {
+    "w": " hay",
+    "s": 77.4,
+    "e": 77.48
+   },
+   {
+    "w": " algo",
+    "s": 77.48,
+    "e": 77.76
+   },
+   {
+    "w": " esperanzador.",
+    "s": 77.76,
+    "e": 78.42
+   }
+  ]
+ },
+ {
+  "start": 79.06,
+  "end": 82.82,
+  "text": "Numerosos estudios han encontrado que la terapia cognitivo conductual",
+  "words": [
+   {
+    "w": " Numerosos",
+    "s": 79.06,
+    "e": 79.58
+   },
+   {
+    "w": " estudios",
+    "s": 79.58,
+    "e": 80.2
+   },
+   {
+    "w": " han",
+    "s": 80.2,
+    "e": 80.36
+   },
+   {
+    "w": " encontrado",
+    "s": 80.36,
+    "e": 80.9
+   },
+   {
+    "w": " que",
+    "s": 80.9,
+    "e": 81.02
+   },
+   {
+    "w": " la",
+    "s": 81.02,
+    "e": 81.14
+   },
+   {
+    "w": " terapia",
+    "s": 81.14,
+    "e": 81.56
+   },
+   {
+    "w": " cognitivo",
+    "s": 81.56,
+    "e": 82.2
+   },
+   {
+    "w": " conductual",
+    "s": 82.2,
+    "e": 82.82
+   }
+  ]
+ },
+ {
+  "start": 82.82,
+  "end": 85.62,
+  "text": "puede ayudar a tratar los trastornos de ansiedad.",
+  "words": [
+   {
+    "w": " puede",
+    "s": 82.82,
+    "e": 83.4
+   },
+   {
+    "w": " ayudar",
+    "s": 83.4,
+    "e": 83.76
+   },
+   {
+    "w": " a",
+    "s": 83.76,
+    "e": 83.9
+   },
+   {
+    "w": " tratar",
+    "s": 83.9,
+    "e": 84.22
+   },
+   {
+    "w": " los",
+    "s": 84.22,
+    "e": 84.46
+   },
+   {
+    "w": " trastornos",
+    "s": 84.46,
+    "e": 85.06
+   },
+   {
+    "w": " de",
+    "s": 85.06,
+    "e": 85.14
+   },
+   {
+    "w": " ansiedad.",
+    "s": 85.14,
+    "e": 85.62
+   }
+  ]
+ },
+ {
+  "start": 86.12,
+  "end": 89.92,
+  "text": "Así que recuerda, la ansiedad es una respuesta de protección",
+  "words": [
+   {
+    "w": " Así",
+    "s": 86.12,
+    "e": 86.42
+   },
+   {
+    "w": " que",
+    "s": 86.42,
+    "e": 86.58
+   },
+   {
+    "w": " recuerda,",
+    "s": 86.58,
+    "e": 87.12
+   },
+   {
+    "w": " la",
+    "s": 87.62,
+    "e": 87.76
+   },
+   {
+    "w": " ansiedad",
+    "s": 87.76,
+    "e": 88.28
+   },
+   {
+    "w": " es",
+    "s": 88.28,
+    "e": 88.48
+   },
+   {
+    "w": " una",
+    "s": 88.48,
+    "e": 88.64
+   },
+   {
+    "w": " respuesta",
+    "s": 88.64,
+    "e": 89.08
+   },
+   {
+    "w": " de",
+    "s": 89.08,
+    "e": 89.3
+   },
+   {
+    "w": " protección",
+    "s": 89.3,
+    "e": 89.92
+   }
+  ]
+ },
+ {
+  "start": 89.92,
+  "end": 94.12,
+  "text": "que, a veces, puede activarse cuando no hay un peligro inmediato.",
+  "words": [
+   {
+    "w": " que,",
+    "s": 89.92,
+    "e": 90.28
+   },
+   {
+    "w": " a",
+    "s": 90.58,
+    "e": 90.66
+   },
+   {
+    "w": " veces,",
+    "s": 90.66,
+    "e": 90.94
+   },
+   {
+    "w": " puede",
+    "s": 91.58,
+    "e": 91.72
+   },
+   {
+    "w": " activarse",
+    "s": 91.72,
+    "e": 92.28
+   },
+   {
+    "w": " cuando",
+    "s": 92.28,
+    "e": 92.48
+   },
+   {
+    "w": " no",
+    "s": 92.48,
+    "e": 92.88
+   },
+   {
+    "w": " hay",
+    "s": 92.88,
+    "e": 93.12
+   },
+   {
+    "w": " un",
+    "s": 93.12,
+    "e": 93.22
+   },
+   {
+    "w": " peligro",
+    "s": 93.22,
+    "e": 93.62
+   },
+   {
+    "w": " inmediato.",
+    "s": 93.62,
+    "e": 94.12
+   }
+  ]
+ },
+ {
+  "start": 94.76,
+  "end": 98.04,
+  "text": "Comprenderla es un primer paso para aprender a manejarla.",
+  "words": [
+   {
+    "w": " Comprenderla",
+    "s": 94.76,
+    "e": 95.48
+   },
+   {
+    "w": " es",
+    "s": 95.48,
+    "e": 95.76
+   },
+   {
+    "w": " un",
+    "s": 95.76,
+    "e": 95.9
+   },
+   {
+    "w": " primer",
+    "s": 95.9,
+    "e": 96.28
+   },
+   {
+    "w": " paso",
+    "s": 96.28,
+    "e": 96.68
+   },
+   {
+    "w": " para",
+    "s": 96.68,
+    "e": 96.94
+   },
+   {
+    "w": " aprender",
+    "s": 96.94,
+    "e": 97.32
+   },
+   {
+    "w": " a",
+    "s": 97.32,
+    "e": 97.48
+   },
+   {
+    "w": " manejarla.",
+    "s": 97.48,
+    "e": 98.04
+   }
+  ]
+ }
+]
