@@ -10,3 +10,7 @@ ansiedad_*.log
 ansiedad/descargas/partes/
 ansiedad/descargas/ansiedad_final_1080x1920.mp4
 ansiedad/descargas/vista_previa.mp4
+gorila/output/stills/
+gorila/output/big/
+gorila/output/*.png
+gorila/audio/mix_pre.wav

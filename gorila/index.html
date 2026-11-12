@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Detrás del Porqué — Ceguera por falta de atención</title>
+<!-- Animación vectorial 2.5D (SVG + JS). Todo se calcula en función del tiempo: window.renderFrame(t) dibuja el fotograma t (s). -->
+<style>
+  @font-face { font-family: M; font-weight: 800; src: url(../node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2); }
+  @font-face { font-family: M; font-weight: 900; src: url(../node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2); }
+  html, body { margin: 0; background: #0b1636; overflow: hidden; }
+  svg { display: block; width: 100vw; height: 100vh; }
+  text { font-family: M, sans-serif; }
+</style>
+</head>
+<body>
+<svg id="svg" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="42%" r="75%">
+      <stop offset="0" stop-color="#1b3170"/><stop offset="0.55" stop-color="#0f1d48"/><stop offset="1" stop-color="#070f28"/>
+    </radialGradient>
+    <radialGradient id="iris" cx="50%" cy="50%" r="50%">
+      <stop offset="0.42" stop-color="#ffd25a"/><stop offset="0.7" stop-color="#ff9a3c"/><stop offset="1" stop-color="#e2581f"/>
+    </radialGradient>
+    <linearGradient id="scleraShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9cfe0"/><stop offset="0.35" stop-color="#f6f3ec"/><stop offset="1" stop-color="#ece6da"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c1a44"/><stop offset="1" stop-color="#1a2f6a"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9a65a"/><stop offset="1" stop-color="#f6c47e"/>
+    </linearGradient>
+    <radialGradient id="ballGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#ffb36a"/><stop offset="1" stop-color="#e2581f"/>
+    </radialGradient>
+    <radialGradient id="yball" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#fff2a8"/><stop offset="1" stop-color="#ffc21f"/>
+    </radialGradient>
+    <radialGradient id="vig" cx="50%" cy="50%" r="72%">
+      <stop offset="0.6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#020617" stop-opacity="0.55"/>
+    </radialGradient>
+    <radialGradient id="lensGlass" cx="40%" cy="35%" r="65%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/><stop offset="1" stop-color="#9fc4ff" stop-opacity="0.08"/>
+    </radialGradient>
+    <clipPath id="eyeClip"><path id="eyeClipPath"/></clipPath>
+    <clipPath id="pupilClip"><circle id="pupilClipC" r="0"/></clipPath>
+    <mask id="dimMask">
+      <rect width="1080" height="1920" fill="#fff"/><circle id="dimHole" r="0" fill="#000"/>
+    </mask>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgGrad)"/>
+  <g id="bgDeco"></g>
+
+  <!-- ESCENA 1: ojo -->
+  <g id="s1">
+    <g id="eyeCam">
+      <g id="eye"></g>
+    </g>
+    <g id="yellowBall"></g>
+  </g>
+
+  <!-- ESCENA 2: cancha (se revela dentro de la pupila) -->
+  <g id="courtWrap" clip-path="url(#pupilClip)">
+    <g id="courtCam"><g id="court"></g><g id="actors"></g><g id="ballsFx"></g></g>
+    <rect id="freezeDim" width="1080" height="1920" fill="#08122e" opacity="0" mask="url(#dimMask)"/>
+    <g id="mark"></g>
+  </g>
+
+  <!-- ESCENA 3: lupa → cerebro -->
+  <rect id="s3bg" width="1080" height="1920" fill="url(#bgGrad)" opacity="0"/>
+  <g id="lens"></g>
+  <g id="brain"></g>
+
+  <g id="titles"></g>
+  <g id="counter"></g>
+  <g id="brand"></g>
+  <g id="subs"></g>
+  <rect width="1080" height="1920" fill="url(#vig)" pointer-events="none"/>
+  <rect id="flash" width="1080" height="1920" fill="#fff" opacity="0"/>
+</svg>
+
+<script>
+// ------------------------------------------------------------------ utilidades
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (id) => document.getElementById(id);
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const set = (e, attrs) => { for (const k in attrs) e.setAttribute(k, attrs[k]); };
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const E = {
+  lin: (x) => x,
+  out: (x) => 1 - Math.pow(1 - x, 3),
+  inOut: (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  in: (x) => x * x * x,
+  inExpo: (x) => x === 0 ? 0 : Math.pow(2, 10 * x - 10),
+  back: (x) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  elastic: (x) => x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * (2 * Math.PI) / 3.2) + 1,
+};
+const ramp = (t, a, b, e = E.lin) => e(clamp((t - a) / (b - a)));
+const C = { navy: '#0b1636', navy2: '#16285e', white: '#f6f3ec', yellow: '#ffc93c', orange: '#ff7a2f', ink: '#081128' };
+
+// ------------------------------------------------------------------ tiempos (ajustados a la locución editada)
+const T = { s2: 3.2, freeze: 7.85, end: 10.0 };
+window.DURATION = T.end;
+
+// ------------------------------------------------------------------ fondo: puntos editoriales
+(() => {
+  const g = $('bgDeco');
+  for (let i = 0; i < 60; i++) {
+    const x = (i * 197) % 1080, y = (i * 331) % 1920, r = 2 + (i % 3);
+    el('circle', { cx: x, cy: y, r, fill: '#2a4796', opacity: 0.35 }, g);
+  }
+})();
+
+// ------------------------------------------------------------------ ESCENA 1: el ojo
+const EYE = { x: 540, y: 880 };
+const eyeG = $('eye');
+set(eyeG, { transform: `translate(${EYE.x},${EYE.y})` });
+const eyeShadow = el('ellipse', { cx: 0, cy: 30, rx: 420, ry: 250, fill: '#050b20', opacity: 0.45, filter: 'url(#soft)' }, eyeG);
+const scl = el('path', { fill: 'url(#scleraShade)' }, eyeG);
+const irisG = el('g', { 'clip-path': 'url(#eyeClip)' }, eyeG);
+const irisInner = el('g', {}, irisG);
+el('circle', { r: 150, fill: 'url(#iris)' }, irisInner);
+for (let i = 0; i < 28; i++) {
+  const a = i / 28 * Math.PI * 2;
+  el('line', { x1: Math.cos(a) * 72, y1: Math.sin(a) * 72, x2: Math.cos(a) * 140, y2: Math.sin(a) * 140, stroke: '#c94a14', 'stroke-width': 4, opacity: 0.35, 'stroke-linecap': 'round' }, irisInner);
+}
+el('circle', { r: 150, fill: 'none', stroke: '#9b3510', 'stroke-width': 8, opacity: 0.6 }, irisInner);
+const pupil = el('circle', { r: 66, fill: C.ink }, irisInner);
+el('circle', { cx: -40, cy: -44, r: 22, fill: '#fff', opacity: 0.95 }, irisInner);
+el('circle', { cx: 46, cy: 40, r: 9, fill: '#fff', opacity: 0.7 }, irisInner);
+const lidTop = el('path', { fill: 'none', stroke: C.white, 'stroke-width': 16, 'stroke-linecap': 'round' }, eyeG);
+const lidBot = el('path', { fill: 'none', stroke: '#8fa3d8', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: 0.7 }, eyeG);
+const lidFill = el('path', { fill: '#24408a' }, eyeG); // párpado que baja en el parpadeo
+const lashes = [];
+for (let i = 0; i < 7; i++) lashes.push(el('line', { stroke: C.white, 'stroke-width': 10, 'stroke-linecap': 'round' }, eyeG));
+const brow = el('path', { d: 'M -300 -330 Q 0 -420 300 -330', fill: 'none', stroke: '#2f4c9c', 'stroke-width': 26, 'stroke-linecap': 'round' }, eyeG);
+
+const almond = (o, w = 380, h = 250) => `M ${-w} 0 Q 0 ${-h * o * 1.0} ${w} 0 Q 0 ${h * o} ${-w} 0 Z`;
+function qpt(t, w, h) { // punto en la curva superior del párpado (cuadrática)
+  const x = (1 - t) * (1 - t) * -w + t * t * w, y = 2 * (1 - t) * t * -h;
+  const dx = 2 * (1 - t) * (0 + w) + 2 * t * (w - 0), dy = 2 * (1 - t) * -h + 2 * t * h;
+  return { x, y, nx: dy, ny: -dx };
+}
+
+// pelota amarilla que sigue la pupila
+const yb = $('yellowBall');
+const ybTrail = [0, 1, 2, 3].map(i => el('circle', { r: 26 - i * 4, fill: C.yellow, opacity: 0.25 - i * 0.05 }, yb));
+const ybShadow = el('ellipse', { rx: 30, ry: 8, fill: '#020617', opacity: 0.4 }, yb);
+const ybBall = el('circle', { r: 28, fill: 'url(#yball)' }, yb);
+function yellowPos(t) {
+  // rebota de lado a lado bajo el ojo y al final salta dentro de la pupila
+  const x = 540 + 320 * Math.sin(t * 2.3 - 0.4);
+  const y = 1330 - 230 * Math.abs(Math.sin(t * 4.6));
+  return { x, y };
+}
+
+// ------------------------------------------------------------------ ESCENA 2: la cancha
+const court = $('court'), actors = $('actors'), ballsFx = $('ballsFx');
+const HOR = 640; // línea del fondo de la cancha
+function proj(u, v) { // u: -1..1 lateral, v: 0 (fondo) .. 1 (cerca)
+  const y = HOR + 40 + Math.pow(v, 1.15) * 1080;
+  const half = lerp(330, 760, v);
+  return { x: 540 + u * half, y, s: lerp(0.58, 1.18, v) };
+}
+(() => {
+  el('rect', { width: 1080, height: HOR + 60, fill: 'url(#wall)' }, court);
+  // gradas estilizadas con público
+  for (let r = 0; r < 4; r++) {
+    const y = 300 + r * 82;
+    el('rect', { x: 0, y, width: 1080, height: 70, fill: r % 2 ? '#162a63' : '#13255a' }, court);
+    for (let i = 0; i < 16; i++) {
+      const x = 30 + i * 68 + (r % 2) * 34;
+      const c = ['#24408a', '#2c4c9e', '#1f3a80'][(i + r) % 3];
+      el('circle', { cx: x, cy: y + 18, r: 17, fill: c }, court);
+      el('rect', { x: x - 24, y: y + 34, width: 48, height: 36, rx: 16, fill: c }, court);
+    }
+  }
+  // banda publicitaria / marcador
+  el('rect', { x: 0, y: 610, width: 1080, height: 40, fill: '#0a1638' }, court);
+  for (let i = 0; i < 9; i++) el('rect', { x: 20 + i * 120, y: 622, width: 70, height: 16, rx: 8, fill: i % 2 ? C.orange : C.yellow, opacity: 0.55 }, court);
+  // suelo en perspectiva
+  const a = proj(-1.25, 0), b = proj(1.25, 0), c = proj(1.25, 1.25), d = proj(-1.25, 1.25);
+  el('path', { d: `M ${a.x - 300} ${HOR + 40} L ${b.x + 300} ${HOR + 40} L 1500 1920 L -420 1920 Z`, fill: 'url(#floor)' }, court);
+  // tablas del parqué
+  for (let i = -10; i <= 10; i++) {
+    const p0 = proj(i * 0.16, 0), p1 = proj(i * 0.16, 1.3);
+    el('line', { x1: p0.x, y1: p0.y, x2: p1.x, y2: p1.y, stroke: '#d08a40', 'stroke-width': 2, opacity: 0.35 }, court);
+  }
+  // líneas de la cancha
+  const line = (pts) => el('path', { d: 'M ' + pts.map(p => `${p.x} ${p.y}`).join(' L '), fill: 'none', stroke: '#fff7ea', 'stroke-width': 7, opacity: 0.9, 'stroke-linejoin': 'round' }, court);
+  line([proj(-1, 0.02), proj(1, 0.02)]);
+  line([proj(-1, 0.02), proj(-1, 1.3)]); line([proj(1, 0.02), proj(1, 1.3)]);
+  // zona y semicírculo
+  line([proj(-0.36, 0.02), proj(-0.36, 0.42), proj(0.36, 0.42), proj(0.36, 0.02)]);
+  const arc = []; for (let i = 0; i <= 24; i++) { const a = Math.PI * i / 24; arc.push(proj(Math.cos(a) * 0.36, 0.42 + Math.sin(a) * 0.2)); }
+  line(arc);
+  // canasta al fondo
+  el('rect', { x: 470, y: 470, width: 140, height: 92, rx: 6, fill: '#f6f3ec', opacity: 0.95 }, court);
+  el('rect', { x: 512, y: 512, width: 56, height: 40, fill: 'none', stroke: C.orange, 'stroke-width': 5 }, court);
+  el('ellipse', { cx: 540, cy: 566, rx: 34, ry: 7, fill: 'none', stroke: C.orange, 'stroke-width': 6 }, court);
+  el('path', { d: 'M 508 568 L 520 610 M 540 572 L 540 612 M 572 568 L 560 610', stroke: '#fff', 'stroke-width': 3, opacity: 0.8 }, court);
+})();
+
+// --- personajes
+const SKIN = ['#f1c7a1', '#c98d63', '#8a5a3c', '#e8b48c', '#a8714b', '#f3d2b4'];
+const HAIR = ['#2a1b12', '#14110f', '#3b2416', '#6b3f1f', '#121212', '#c58b3a'];
+function makePerson(shirt, pants, skin, hair, style) {
+  const g = el('g', {}, actors);
+  const sh = el('ellipse', { rx: 64, ry: 15, fill: '#7a4316', opacity: 0.35 }, g);
+  const body = el('g', {}, g);
+  const legB = el('path', { fill: 'none', stroke: pants, 'stroke-width': 30, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const armB = el('path', { fill: 'none', stroke: skin, 'stroke-width': 21, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const legF = el('path', { fill: 'none', stroke: pants, 'stroke-width': 30, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const shoeB = el('ellipse', { rx: 22, ry: 11, fill: '#1c1c28' }, body);
+  const shoeF = el('ellipse', { rx: 22, ry: 11, fill: '#1c1c28' }, body);
+  const torso = el('path', { fill: shirt }, body);
+  const num = el('text', { 'font-size': 34, 'font-weight': 900, fill: shirt === C.white ? '#0b1636' : '#f6f3ec', 'text-anchor': 'middle', opacity: 0.8 }, body);
+  const neck = el('rect', { x: -11, y: -296, width: 22, height: 24, fill: skin }, body);
+  const head = el('g', {}, body);
+  el('ellipse', { cx: 0, cy: 0, rx: 37, ry: 40, fill: skin }, head);
+  if (style === 0) el('path', { d: 'M -38 -6 Q -40 -46 0 -46 Q 40 -46 38 -6 Q 22 -26 -38 -6 Z', fill: hair }, head);
+  else if (style === 1) { el('path', { d: 'M -38 -2 Q -42 -48 0 -48 Q 42 -48 38 -2 Q 10 -30 -38 -2 Z', fill: hair }, head); el('circle', { cx: 0, cy: -48, r: 16, fill: hair }, head); }
+  else el('path', { d: 'M -39 4 Q -44 -50 0 -48 Q 44 -50 39 4 L 34 -14 Q 0 -30 -34 -14 Z', fill: hair }, head);
+  el('circle', { cx: 13, cy: 2, r: 4, fill: '#1a1a24' }, head);
+  el('circle', { cx: -9, cy: 2, r: 4, fill: '#1a1a24' }, head);
+  el('path', { d: 'M -6 18 Q 4 24 14 18', fill: 'none', stroke: '#6a3a28', 'stroke-width': 3.5, 'stroke-linecap': 'round' }, head);
+  const armF = el('path', { fill: 'none', stroke: skin, 'stroke-width': 21, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const sleeveF = el('circle', { r: 17, fill: shirt }, body);
+  return { g, sh, body, legB, legF, armB, armF, shoeB, shoeF, torso, num, head, sleeveF, shirt };
+}
+// cinemática simple de 2 segmentos: devuelve el codo/rodilla para unir origen y destino
+function ik(ox, oy, tx, ty, l1, l2, bend) {
+  let dx = tx - ox, dy = ty - oy; let d = Math.hypot(dx, dy);
+  const maxd = l1 + l2 - 0.5; if (d > maxd) { tx = ox + dx / d * maxd; ty = oy + dy / d * maxd; dx = tx - ox; dy = ty - oy; d = maxd; }
+  const a = Math.atan2(dy, dx), c = clamp((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1);
+  const b = a + bend * Math.acos(c);
+  return { jx: ox + Math.cos(b) * l1, jy: oy + Math.sin(b) * l1, tx, ty };
+}
+function drawPerson(P, st) {
+  // st: x,y,s,facing(±1),phase,stride, handL{x,y}, handR{x,y} (locales), bob
+  const p = proj(st.u, st.v);
+  set(P.g, { transform: `translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) scale(${(p.s * st.face).toFixed(3)},${p.s.toFixed(3)})` });
+  set(P.sh, { cx: 0, cy: 0 });
+  const bob = Math.abs(Math.sin(st.phase)) * 6 * st.stride;
+  set(P.body, { transform: `translate(0,${(-bob).toFixed(1)}) rotate(${(st.lean || 0).toFixed(1)})` });
+  const hipY = -150, sw = Math.sin(st.phase) * 34 * st.stride, lift = (k) => Math.max(0, Math.sin(st.phase + k)) * 26 * st.stride;
+  const legs = [[P.legB, P.shoeB, -12, sw, lift(0)], [P.legF, P.shoeF, 12, -sw, lift(Math.PI)]];
+  for (const [path, shoe, hx, fx, fl] of legs) {
+    const k = ik(hx, hipY, hx + fx, -10 - fl + bob, 78, 78, -1);
+    set(path, { d: `M ${hx} ${hipY} L ${k.jx.toFixed(1)} ${k.jy.toFixed(1)} L ${k.tx.toFixed(1)} ${k.ty.toFixed(1)}` });
+    set(shoe, { cx: (k.tx + 8).toFixed(1), cy: (k.ty + 6).toFixed(1) });
+  }
+  set(P.torso, { d: 'M -44 -160 Q -50 -230 -40 -268 Q 0 -284 40 -268 Q 50 -230 44 -160 Q 0 -146 -44 -160 Z' });
+  set(P.num, { x: 0, y: -196 }); P.num.textContent = st.num || '';
+  set(P.head, { transform: `translate(${(st.headX || 4)},-322) rotate(${(st.headR || 0).toFixed(1)})` });
+  const arms = [[P.armB, -30, st.handB], [P.armF, 30, st.handF]];
+  for (const [path, sx, h] of arms) {
+    const k = ik(sx, -258, h.x, h.y, 64, 62, sx < 0 ? 1 : 1);
+    set(path, { d: `M ${sx} -258 L ${k.jx.toFixed(1)} ${k.jy.toFixed(1)} L ${k.tx.toFixed(1)} ${k.ty.toFixed(1)}` });
+  }
+  set(P.sleeveF, { cx: 30, cy: -256 });
+  return p;
+}
+
+// gorila (figura con disfraz): cuerpo voluminoso, brazos largos, cara clara
+function makeGorilla() {
+  const g = el('g', {}, actors);
+  const sh = el('ellipse', { rx: 90, ry: 20, fill: '#7a4316', opacity: 0.4 }, g);
+  const body = el('g', {}, g);
+  const fur = '#2b2a33', fur2 = '#3b3a46';
+  const legB = el('path', { fill: 'none', stroke: fur, 'stroke-width': 46, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const armB = el('path', { fill: 'none', stroke: fur, 'stroke-width': 38, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const legF = el('path', { fill: 'none', stroke: fur2, 'stroke-width': 46, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const torso = el('path', { fill: fur2, d: 'M -70 -150 Q -86 -250 -54 -300 Q 0 -330 54 -300 Q 86 -250 70 -150 Q 0 -122 -70 -150 Z' }, body);
+  el('path', { d: 'M -40 -190 Q 0 -170 40 -190 Q 30 -250 0 -262 Q -30 -250 -40 -190 Z', fill: '#4a4856' }, body);
+  const head = el('g', {}, body);
+  el('ellipse', { cx: 0, cy: 0, rx: 46, ry: 48, fill: fur }, head);
+  el('ellipse', { cx: 4, cy: 10, rx: 30, ry: 28, fill: '#6d6676' }, head);
+  el('rect', { x: -26, y: -16, width: 60, height: 14, rx: 7, fill: fur2 }, head);
+  el('circle', { cx: -6, cy: -4, r: 5, fill: '#f6f3ec' }, head); el('circle', { cx: 18, cy: -4, r: 5, fill: '#f6f3ec' }, head);
+  el('circle', { cx: -6, cy: -4, r: 2.5, fill: '#111' }, head); el('circle', { cx: 18, cy: -4, r: 2.5, fill: '#111' }, head);
+  el('ellipse', { cx: 6, cy: 14, rx: 12, ry: 6, fill: '#3b3640' }, head);
+  el('path', { d: 'M -8 28 Q 6 34 20 28', stroke: '#2a2530', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' }, head);
+  const armF = el('path', { fill: 'none', stroke: fur2, 'stroke-width': 38, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+  const handF = el('circle', { r: 22, fill: '#3b3a46' }, body), handB = el('circle', { r: 22, fill: fur }, body);
+  return { g, sh, body, legB, legF, armB, armF, head, handF, handB };
+}
+function drawGorilla(G, st) {
+  const p = proj(st.u, st.v);
+  set(G.g, { transform: `translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) scale(${(p.s * st.face).toFixed(3)},${p.s.toFixed(3)})` });
+  const bob = Math.abs(Math.sin(st.phase)) * 10 * st.stride;
+  set(G.body, { transform: `translate(0,${(-bob).toFixed(1)}) rotate(${(4 + Math.sin(st.phase) * 2 * st.stride).toFixed(1)})` });
+  const hipY = -150, sw = Math.sin(st.phase) * 40 * st.stride, lift = (k) => Math.max(0, Math.sin(st.phase + k)) * 24 * st.stride;
+  [[G.legB, -24, sw, lift(0)], [G.legF, 24, -sw, lift(Math.PI)]].forEach(([path, hx, fx, fl]) => {
+    const k = ik(hx, hipY, hx + fx, -16 - fl + bob, 76, 76, -1);
+    set(path, { d: `M ${hx} ${hipY} L ${k.jx.toFixed(1)} ${k.jy.toFixed(1)} L ${k.tx.toFixed(1)} ${k.ty.toFixed(1)}` });
+  });
+  set(G.head, { transform: `translate(14,-334) rotate(${(st.headR || 0).toFixed(1)})` });
+  [[G.armB, G.handB, -52, st.handB], [G.armF, G.handF, 52, st.handF]].forEach(([path, hand, sx, h]) => {
+    const k = ik(sx, -280, h.x, h.y, 96, 92, 1);
+    set(path, { d: `M ${sx} -280 L ${k.jx.toFixed(1)} ${k.jy.toFixed(1)} L ${k.tx.toFixed(1)} ${k.ty.toFixed(1)}` });
+    set(hand, { cx: k.tx.toFixed(1), cy: k.ty.toFixed(1) });
+  });
+}
+
+// equipos: 3 camisetas blancas y 3 oscuras, moviéndose en bucles entrecruzados
+const TEAM = [
+  { shirt: C.white, pants: '#1d2b5c', base: [[-0.62, 0.30], [0.55, 0.22], [0.05, 0.66]], nums: ['3', '7', '9'] },
+  { shirt: '#1f2340', pants: '#11142a', base: [[-0.15, 0.20], [0.62, 0.58], [-0.6, 0.62]], nums: ['2', '5', '8'] },
+];
+const people = [];
+TEAM.forEach((tm, ti) => tm.base.forEach((b, i) => {
+  const k = ti * 3 + i;
+  people.push({ P: makePerson(tm.shirt, tm.pants, SKIN[k], HAIR[k], k % 3), team: ti, i, b, num: tm.nums[i], ph: k * 1.7 });
+}));
+const gor = makeGorilla();
+// la cancha usa el reloj congelado a partir de T.freeze
+function personPos(pp, t) {
+  const w = 0.55 + pp.team * 0.12;
+  return { u: pp.b[0] + 0.13 * Math.sin(w * t + pp.ph), v: pp.b[1] + 0.07 * Math.sin(w * 1.3 * t + pp.ph * 1.4) };
+}
+// pases: cada equipo pasa su balón en un orden fijo; los blancos llevan la cuenta
+function passes(team) {
+  const order = team === 0 ? [0, 1, 2, 0, 2, 1, 0, 1] : [0, 2, 1, 0, 1, 2, 0, 2];
+  const out = []; let t = team === 0 ? 3.25 : 3.55; const hold = 0.26, fly = 0.44;
+  for (let i = 0; i < 14; i++) {
+    const from = order[i % order.length], to = order[(i + 1) % order.length];
+    out.push({ from, to, t0: t + hold, t1: t + hold + fly, bounce: (i + team) % 3 === 1 });
+    t += hold + fly + (i % 2 ? 0.08 : 0.0);
+  }
+  return out;
+}
+const PASSES = [passes(0), passes(1)];
+const ballEls = [0, 1].map(() => {
+  const g = el('g', {}, ballsFx);
+  const trail = el('path', { fill: 'none', stroke: C.yellow, 'stroke-width': 6, 'stroke-dasharray': '2 16', 'stroke-linecap': 'round', opacity: 0 }, g);
+  const sh = el('ellipse', { rx: 22, ry: 6, fill: '#7a4316', opacity: 0.4 }, g);
+  const b = el('g', {}, g);
+  el('circle', { r: 26, fill: 'url(#ballGrad)' }, b);
+  el('path', { d: 'M -26 0 L 26 0 M 0 -26 L 0 26 M -18 -18 Q 0 0 -18 18 M 18 -18 Q 0 0 18 18', stroke: '#8a2f0c', 'stroke-width': 2.5, fill: 'none' }, b);
+  return { g, trail, sh, b };
+});
+
+function chestOf(pp, t) { // posición en pantalla del pecho/manos del jugador
+  const q = personPos(pp, t), p = proj(q.u, q.v);
+  return { x: p.x, y: p.y - 228 * p.s, s: p.s, floor: p.y };
+}
+function ballState(team, t) {
+  const list = PASSES[team], tp = people.filter(p => p.team === team);
+  for (let i = 0; i < list.length; i++) {
+    const ps = list[i];
+    if (t < ps.t0) return { holder: ps.from, pos: chestOf(tp[ps.from], t), flying: false, count: i };
+    if (t < ps.t1) {
+      const k = (t - ps.t0) / (ps.t1 - ps.t0);
+      const a = chestOf(tp[ps.from], ps.t0), b = chestOf(tp[ps.to], ps.t1);
+      let x = lerp(a.x, b.x, k), y = lerp(a.y, b.y, k), s = lerp(a.s, b.s, k);
+      const fl = lerp(a.floor, b.floor, k);
+      if (ps.bounce) { const kk = k < 0.5 ? k / 0.5 : (1 - k) / 0.5; y = lerp(y, fl - 22 * s, 1 - Math.pow(1 - kk, 2) * 0 - (1 - kk) * 0 + (kk * (2 - kk))); y = lerp(lerp(a.y, b.y, k), fl - 24 * s, kk * (2 - kk)); }
+      else y -= Math.sin(k * Math.PI) * 70 * s;
+      return { holder: -1, from: ps.from, to: ps.to, k, pos: { x, y, s, floor: fl }, flying: true, count: i, a, b, bounce: ps.bounce };
+    }
+  }
+  return { holder: list[list.length - 1].to, pos: chestOf(tp[list[list.length - 1].to], t), flying: false, count: list.length };
+}
+function gorillaState(t) {
+  // entra por la derecha, se detiene en el centro, se golpea el pecho y sigue hacia la izquierda
+  const v = 0.44;
+  const k1 = ramp(t, 3.55, 5.45, E.lin), k2 = ramp(t, 6.25, 8.4, E.lin);
+  let u = lerp(1.45, 0.02, k1); if (t > 6.25) u = lerp(0.02, -0.75, k2);
+  const walking = (t > 3.55 && t < 5.45) || t > 6.25;
+  const thump = t > 5.55 && t < 6.15;
+  return { u, v, walking, thump };
+}
+
+function drawCourt(t) {
+  // jugadores
+  const st = [0, 1].map(team => ballState(team, t));
+  const drawList = [];
+  people.forEach(pp => {
+    const q = personPos(pp, t), q2 = personPos(pp, t + 0.05);
+    const speed = Math.hypot(q2.u - q.u, q2.v - q.v) / 0.05;
+    const bs = st[pp.team];
+    let handB = { x: -36, y: -150 }, handF = { x: 40, y: -150 }, face = 1, lean = 0;
+    const me = pp.i;
+    // mira hacia el balón de su equipo
+    const target = bs.pos; const myp = proj(q.u, q.v);
+    face = target.x >= myp.x ? 1 : -1;
+    if (bs.holder === me) { handB = { x: 20, y: -232 }; handF = { x: 52, y: -226 }; }
+    if (bs.flying && bs.from === me && bs.k < 0.35) { const e = bs.k / 0.35; handB = { x: lerp(20, 98, e), y: lerp(-232, -250, e) }; handF = { x: lerp(52, 112, e), y: lerp(-226, -240, e) }; lean = 6 * Math.sin(e * Math.PI); }
+    if (bs.flying && bs.to === me && bs.k > 0.45) { const e = (bs.k - 0.45) / 0.55; handB = { x: lerp(-30, 82, e), y: lerp(-170, -246, e) }; handF = { x: lerp(40, 96, e), y: lerp(-160, -236, e) }; }
+    drawList.push({ v: q.v, fn: () => drawPerson(pp.P, { u: q.u, v: q.v, face, phase: t * 8.5 + pp.ph, stride: clamp(0.35 + speed * 4.5, 0, 1), handB, handF, num: pp.num, lean }) });
+  });
+  const gs = gorillaState(t);
+  drawList.push({ v: gs.v, fn: () => {
+    let handB = { x: -40, y: -110 }, handF = { x: 60, y: -100 }, headR = 0, face = -1;
+    const ph = t * 5.2;
+    if (gs.walking) { handB = { x: -30 + Math.sin(ph) * 40, y: -96 }; handF = { x: 50 - Math.sin(ph) * 40, y: -92 }; }
+    if (gs.thump) { const b = Math.abs(Math.sin((t - 5.55) * Math.PI * 5)); handB = { x: 10, y: -250 + b * 30 }; handF = { x: 30, y: -246 + b * 30 }; face = 1; headR = -6; }
+    if (t > 5.45 && t < 6.25 && !gs.thump) face = 1;
+    drawGorilla(gor, { u: gs.u, v: gs.v, face, phase: gs.walking ? ph : 0, stride: gs.walking ? 1 : 0, handB, handF, headR });
+  } });
+  // orden por profundidad
+  drawList.sort((a, b) => a.v - b.v);
+  drawList.forEach((d, i) => d.fn());
+  const order = drawList.map(d => d.v);
+  [...people.map(p => ({ v: personPos(p, t).v, g: p.P.g })), { v: gs.v, g: gor.g }].sort((a, b) => a.v - b.v).forEach(o => actors.appendChild(o.g));
+  // balones
+  st.forEach((bs, team) => {
+    const B = ballEls[team], p = bs.pos;
+    let x = p.x, y = p.y;
+    if (!bs.flying) { x += 34 * p.s * (proj(0, 0).x < x ? 1 : 1) * 0; y -= 4 * p.s; }
+    set(B.b, { transform: `translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${p.s.toFixed(3)}) rotate(${(t * 400 % 360).toFixed(0)})` });
+    set(B.sh, { cx: x, cy: p.floor + 6 * p.s, rx: 22 * p.s, ry: 6 * p.s, opacity: bs.flying ? 0.35 : 0 });
+    if (team === 0 && bs.flying) {
+      const a = bs.a, b = bs.b, pts = [];
+      for (let i = 0; i <= 16; i++) { const k = i / 16 * bs.k; let yy = lerp(a.y, b.y, k), xx = lerp(a.x, b.x, k); const fl = lerp(a.floor, b.floor, k), s = lerp(a.s, b.s, k);
+        if (bs.bounce) { const kk = k < 0.5 ? k / 0.5 : (1 - k) / 0.5; yy = lerp(yy, fl - 24 * s, kk * (2 - kk)); } else yy -= Math.sin(k * Math.PI) * 70 * s; pts.push(`${xx.toFixed(1)} ${yy.toFixed(1)}`); }
+      set(B.trail, { d: 'M ' + pts.join(' L '), opacity: 0.85 });
+    } else set(B.trail, { opacity: 0 });
+    ballsFx.appendChild(B.g);
+  });
+  return { whiteCount: st[0].count, gor: gs };
+}
+
+// ------------------------------------------------------------------ contador de pases (dirige la atención)
+const cnt = $('counter');
+const cntBox = el('g', {}, cnt);
+el('rect', { x: -250, y: -62, width: 500, height: 124, rx: 62, fill: '#0b1636', opacity: 0.88 }, cntBox);
+el('rect', { x: -250, y: -62, width: 500, height: 124, rx: 62, fill: 'none', stroke: C.yellow, 'stroke-width': 4 }, cntBox);
+const cntLabel = el('text', { x: -40, y: 12, 'font-size': 30, 'font-weight': 800, fill: C.white, 'text-anchor': 'middle', 'letter-spacing': 3 }, cntBox);
+cntLabel.textContent = 'PASES · BLANCOS';
+const cntNum = el('text', { x: 180, y: 26, 'font-size': 76, 'font-weight': 900, fill: C.yellow, 'text-anchor': 'middle' }, cntBox);
+
+// ------------------------------------------------------------------ escena 3: marca, lupa y cerebro
+const mark = $('mark');
+const markC = el('circle', { r: 150, fill: 'none', stroke: C.yellow, 'stroke-width': 14, 'stroke-linecap': 'round' }, mark);
+const lens = $('lens');
+const lensG = el('g', {}, lens);
+el('line', { x1: 120, y1: 120, x2: 270, y2: 270, stroke: '#e2581f', 'stroke-width': 44, 'stroke-linecap': 'round' }, lensG);
+el('line', { x1: 120, y1: 120, x2: 160, y2: 160, stroke: '#2a3a6e', 'stroke-width': 50, 'stroke-linecap': 'round' }, lensG);
+el('circle', { r: 165, fill: 'url(#lensGlass)' }, lensG);
+const lensRing = el('circle', { r: 165, fill: 'none', stroke: C.white, 'stroke-width': 26 }, lensG);
+el('path', { d: 'M -110 -60 A 125 125 0 0 1 -40 -118', stroke: '#fff', 'stroke-width': 12, fill: 'none', 'stroke-linecap': 'round', opacity: 0.8 }, lensG);
+
+const brainG = $('brain');
+const brainIn = el('g', {}, brainG);
+(() => {
+  // cerebro editorial: silueta, dos tonos y pliegues
+  el('ellipse', { cx: 0, cy: 190, rx: 170, ry: 26, fill: '#020617', opacity: 0.35 }, brainIn);
+  el('path', { d: 'M 40 120 Q 60 170 30 200 L 70 200 Q 96 170 92 118 Z', fill: '#e2581f' }, brainIn); // tronco
+  el('path', { d: 'M -190 30 Q -215 -80 -130 -140 Q -60 -200 30 -180 Q 140 -190 190 -100 Q 230 -20 190 60 Q 160 130 70 130 Q 0 150 -60 120 Q -170 110 -190 30 Z', fill: '#ffb36a' }, brainIn);
+  el('path', { d: 'M 90 70 Q 160 60 190 60 Q 160 130 70 130 Q 60 100 90 70 Z', fill: '#ff8f4a' }, brainIn); // cerebelo
+  const folds = ['M -150 -40 Q -110 -90 -60 -60 Q -20 -40 -50 0', 'M -120 60 Q -80 20 -30 40 Q 20 60 50 20', 'M -40 -150 Q -10 -100 40 -120 Q 90 -140 110 -90', 'M 30 -60 Q 80 -40 70 10 Q 60 50 120 40',
+    'M -180 10 Q -150 0 -140 30', 'M 130 -130 Q 150 -80 190 -70', 'M -90 -130 Q -100 -100 -80 -90'];
+  folds.forEach(d => el('path', { d, fill: 'none', stroke: '#e2581f', 'stroke-width': 11, 'stroke-linecap': 'round' }, brainIn));
+  el('path', { d: 'M -10 -178 Q -30 -60 10 30 Q 30 90 -20 128', fill: 'none', stroke: '#c94a14', 'stroke-width': 7, opacity: 0.7, 'stroke-linecap': 'round' }, brainIn);
+  // foco de atención (zona pequeña iluminada) y zona "ciega"
+  el('circle', { cx: -70, cy: -30, r: 36, fill: C.yellow, opacity: 0.0, id: 'focusSpot' }, brainIn);
+})();
+const focusSpot = $('focusSpot');
+const brainRays = el('g', {}, brainG);
+for (let i = 0; i < 10; i++) el('line', { x1: 0, y1: -250, x2: 0, y2: -290, stroke: C.yellow, 'stroke-width': 10, 'stroke-linecap': 'round', transform: `rotate(${-80 + i * 17.7})` }, brainRays);
+
+// ------------------------------------------------------------------ títulos cinéticos
+const titles = $('titles');
+function mkTitle(words, y, size, color, anchorX = 540) {
+  const g = el('g', {}, titles);
+  const t = el('text', { x: anchorX, y, 'font-size': size, 'font-weight': 900, fill: color, 'text-anchor': 'middle', stroke: '#081128', 'stroke-width': size * 0.12, 'paint-order': 'stroke', 'stroke-linejoin': 'round', 'letter-spacing': -size * 0.02 }, g);
+  t.textContent = words; return { g, t, y, x: anchorX };
+}
+const tMirar = [mkTitle('¿MIRAR', 300, 96, C.white, 400), mkTitle('ES', 300, 96, C.white, 0), mkTitle('VER?', 300, 96, C.yellow, 0)];
+const tCeg = mkTitle('CEGUERA', 270, 168, C.yellow);
+const tPor = mkTitle('POR FALTA DE', 380, 92, C.white);
+const tAte = mkTitle('ATENCIÓN', 548, 168, C.yellow);
+const tBar = el('rect', { x: 440, y: 590, width: 200, height: 14, rx: 7, fill: C.orange }, titles);
+
+// ------------------------------------------------------------------ identidad "Detrás del Porqué"
+const brand = $('brand');
+const brandG = el('g', {}, brand);
+el('rect', { x: -60, y: -60, width: 120, height: 120, rx: 30, fill: C.orange }, brandG);
+el('text', { x: 0, y: 34, 'font-size': 96, 'font-weight': 900, fill: C.white, 'text-anchor': 'middle' }, brandG).textContent = '?';
+el('circle', { cx: 46, cy: -46, r: 16, fill: C.yellow, stroke: '#0b1636', 'stroke-width': 5 }, brandG);
+const brT1 = el('text', { x: 86, y: -8, 'font-size': 34, 'font-weight': 800, fill: C.white, 'letter-spacing': 6 }, brandG); brT1.textContent = 'DETRÁS DEL';
+const brT2 = el('text', { x: 84, y: 50, 'font-size': 62, 'font-weight': 900, fill: C.yellow, 'letter-spacing': 1 }, brandG); brT2.textContent = 'PORQUÉ';
+
+// ------------------------------------------------------------------ subtítulos (palabra a palabra)
+const SUBS = [
+  { s: 0.0, e: 1.4, lines: [[['¿Puedes', 0.0], ['mirar', 0.28, 1], ['algo', 0.6]], [['directamente', 0.76]]] },
+  { s: 1.4, e: 3.16, lines: [[['y', 1.4], ['aún', 1.94], ['así', 2.1]], [['no', 2.46], ['verlo?', 2.68, 1]]] },
+  { s: 3.32, e: 4.52, lines: [[['En', 3.3], ['un', 3.42], ['experimento,', 3.52, 1]]] },
+  { s: 4.52, e: 6.0, lines: [[['muchas', 4.54], ['personas', 4.78]], [['no', 5.26], ['notaron', 5.56]]] },
+  { s: 6.0, e: 7.85, lines: [[['a', 6.0], ['un', 6.14], ['gorila', 6.22, 1], ['que', 6.62]], [['cruzaba', 6.78], ['la', 7.24], ['escena.', 7.38]]] },
+  { s: 7.9, e: 10.0, lines: [[['Ceguera', 7.96, 1], ['por', 8.54], ['falta', 8.76]], [['de', 9.14], ['atención.', 9.3, 1]]] },
+];
+const subsG = $('subs');
+const SUB_Y = 1540, SUB_SIZE = 60, LH = 76;
+SUBS.forEach(sb => {
+  sb.g = el('g', { opacity: 0 }, subsG);
+  sb.words = [];
+  sb.lines.forEach((ln, li) => {
+    const t = el('text', { x: 540, y: SUB_Y + li * LH - (sb.lines.length - 1) * LH / 2, 'font-size': SUB_SIZE, 'font-weight': 800, 'text-anchor': 'middle', stroke: '#081128', 'stroke-width': 13, 'paint-order': 'stroke', 'stroke-linejoin': 'round' }, sb.g);
+    ln.forEach(([w, ws, key], wi) => {
+      const sp = el('tspan', {}, t); sp.textContent = (wi ? ' ' : '') + w;
+      sb.words.push({ sp, ws, key });
+    });
+  });
+});
+function drawSubs(t) {
+  SUBS.forEach(sb => {
+    const a = ramp(t, sb.s - 0.06, sb.s + 0.1) * (1 - ramp(t, sb.e - 0.08, sb.e + 0.02));
+    const pop = 1 + 0.06 * (1 - ramp(t, sb.s - 0.06, sb.s + 0.22, E.out));
+    const rise = 18 * (1 - ramp(t, sb.s - 0.06, sb.s + 0.2, E.out));
+    set(sb.g, { opacity: a.toFixed(3), transform: `translate(540,${(SUB_Y + rise).toFixed(1)}) scale(${pop.toFixed(3)}) translate(-540,${-SUB_Y})` });
+    sb.words.forEach(w => set(w.sp, { fill: t >= w.ws - 0.03 ? (w.key ? C.yellow : '#ffffff') : '#a9b3cf' }));
+  });
+}
+
+// ------------------------------------------------------------------ fotograma
+function tr(x, y, s = 1, r = 0) { return `translate(${x.toFixed(2)},${y.toFixed(2)}) rotate(${r.toFixed(2)}) scale(${s.toFixed(4)})`; }
+function renderFrame(t) {
+  // ---------- escena 1: el ojo
+  const intro = ramp(t, 0, 0.55, E.out);
+  const zoom = ramp(t, 2.25, 3.2, E.inExpo);
+  const blink = 1 - Math.max(0, Math.sin(clamp((t - 1.05) / 0.22) * Math.PI)) * 0.95;
+  const o = blink * lerp(0.2, 1, ramp(t, 0, 0.45, E.out));
+  set(scl, { d: almond(o) }); set($('eyeClipPath'), { d: almond(o) });
+  set(lidTop, { d: `M -380 0 Q 0 ${-250 * o} 380 0` }); set(lidBot, { d: `M -360 6 Q 0 ${244 * o} 360 6` });
+  set(lidFill, { d: `M -380 0 Q 0 ${-250 * o} 380 0 Q 0 ${-250 * o - 6} -380 0 Z` });
+  lashes.forEach((l, i) => { const k = 0.2 + i * 0.1, q = qpt(k, 380, 250 * o); const n = Math.hypot(q.nx, q.ny) || 1; set(l, { x1: q.x, y1: q.y, x2: q.x + q.nx / n * 42, y2: q.y + q.ny / n * 42 }); });
+  set(brow, { transform: `translate(0,${(-20 * (1 - o)).toFixed(1)})` });
+  // pelota amarilla y seguimiento de la pupila
+  let yp = yellowPos(t);
+  const dive = ramp(t, 1.85, 2.35, E.inOut);
+  const pupilScr = { x: EYE.x, y: EYE.y };
+  // la pupila sigue la pelota
+  const dx = yp.x - EYE.x, dy = yp.y - EYE.y, d = Math.hypot(dx, dy) || 1;
+  let off = Math.min(d * 0.2, 110) * (1 - dive);
+  const px = dx / d * off, py = dy / d * off * 0.55;
+  set(irisInner, { transform: `translate(${px.toFixed(1)},${py.toFixed(1)})` });
+  pupilScr.x = EYE.x + px; pupilScr.y = EYE.y + py;
+  // al final la pelota se mete en la pupila
+  const yb2 = { x: lerp(yp.x, pupilScr.x, dive), y: lerp(yp.y, pupilScr.y, dive) - Math.sin(dive * Math.PI) * 260 };
+  const ybS = lerp(1, 0.25, dive) * intro;
+  set(ybBall, { transform: tr(yb2.x, yb2.y, ybS) });
+  ybTrail.forEach((c, i) => { const p = yellowPos(t - (i + 1) * 0.045); set(c, { transform: tr(lerp(p.x, pupilScr.x, dive), lerp(p.y, pupilScr.y, dive) - Math.sin(dive * Math.PI) * 260, ybS), opacity: ((0.28 - i * 0.06) * (1 - dive)).toFixed(3) }); });
+  set(ybShadow, { cx: yp.x, cy: 1365, opacity: (0.35 * (1 - dive) * intro).toFixed(3), rx: 30 * (0.6 + 0.4 * (1330 - yp.y) / -230 + 0.8) });
+  set(yb, { opacity: (1 - ramp(t, 2.3, 2.4)).toFixed(3) });
+  set(pupil, { r: (66 * (1 + 0.25 * ramp(t, 2.0, 2.35, E.out))).toFixed(1) });
+  // cámara: acercamiento con profundidad y empuje final dentro de la pupila
+  const eyeS = lerp(0.82, 1, intro) * (1 + 0.04 * Math.sin(t * 1.3)) * lerp(1, 26, zoom) * (1 + ramp(t, 0.5, 2.25, E.inOut) * 0.08);
+  const ex = pupilScr.x, ey = pupilScr.y;
+  set($('eyeCam'), { transform: `translate(${ex},${ey}) scale(${eyeS.toFixed(4)}) translate(${-ex},${-ey})` });
+  set($('s1'), { opacity: (t < T.s2 + 0.05 ? 1 : 0) });
+  // título 1
+  const tA = [0.25, 0.45, 0.62];
+  let xCursor = 0; const widths = tMirar.map(o => o.t.getComputedTextLength());
+  const total = widths.reduce((a, b) => a + b, 0) + 36 * 2; let x0 = 540 - total / 2;
+  tMirar.forEach((o, i) => {
+    const k = ramp(t, tA[i], tA[i] + 0.38, E.back), out = ramp(t, 2.2, 2.6, E.in);
+    const cx = x0 + widths[i] / 2; x0 += widths[i] + 36;
+    set(o.t, { x: cx.toFixed(1) });
+    set(o.g, { opacity: (clamp(k * 1.4) * (1 - out)).toFixed(3), transform: `translate(${cx},${o.y}) scale(${(lerp(0.4, 1, k) * (1 + out * 0.6)).toFixed(3)}) translate(${-cx},${-o.y + lerp(60, 0, clamp(k)) - out * 80})` });
+  });
+
+  // ---------- escena 2: la cancha dentro de la pupila
+  const tc = Math.min(t, T.freeze);           // reloj de la cancha (se congela)
+  const pr = 66 * 1.25 * eyeS;                 // radio de la pupila en pantalla
+  const reveal = t >= T.s2 ? 3000 : pr;
+  set($('pupilClipC'), { cx: pupilScr.x, cy: pupilScr.y, r: reveal.toFixed(1) });
+  const cs = t < T.s2 ? lerp(0.32, 1.0, zoom) : 1;
+  const settle = 1 + 0.035 * (1 - ramp(t, T.s2, T.s2 + 0.9, E.out));
+  set($('courtCam'), { transform: `translate(${pupilScr.x},${pupilScr.y}) scale(${(cs * settle).toFixed(4)}) translate(${-pupilScr.x},${-pupilScr.y})` });
+  set($('courtWrap'), { opacity: t < 2.25 ? 0 : (t < T.s2 ? ramp(t, 2.25, 2.6) : 1) });
+  const cr = drawCourt(Math.max(tc, 2.6));
+  // contador de pases
+  const ci = ramp(t, 3.35, 3.75, E.back), co = ramp(t, T.freeze - 0.02, T.freeze + 0.08);
+  set(cnt, { opacity: (clamp(ci) * (1 - co)).toFixed(3), transform: `translate(540,${(190 - 40 * (1 - clamp(ci))).toFixed(1)}) scale(${lerp(0.7, 1, clamp(ci)).toFixed(3)})` });
+  cntNum.textContent = String(t < 3.2 ? 0 : cr.whiteCount);
+  // ---------- escena 3: congelado, círculo, lupa, cerebro
+  const gp = proj(cr.gor.u, cr.gor.v); const gc = { x: gp.x, y: gp.y - 190 * gp.s };
+  const fz = ramp(t, T.freeze, T.freeze + 0.18);
+  const ringK = ramp(t, T.freeze + 0.05, T.freeze + 0.45, E.out);
+  const R = 150 * gp.s * 1.35;
+  set($('dimHole'), { cx: gc.x, cy: gc.y, r: (R * ringK).toFixed(1) });
+  set($('freezeDim'), { opacity: (0.62 * fz).toFixed(3) });
+  const circ = 2 * Math.PI * R;
+  set(markC, { cx: gc.x, cy: gc.y, r: R.toFixed(1), 'stroke-dasharray': `${circ.toFixed(1)} ${circ.toFixed(1)}`, 'stroke-dashoffset': (circ * (1 - ringK)).toFixed(1), opacity: (t > T.freeze ? 1 : 0), transform: `rotate(-90 ${gc.x} ${gc.y})` });
+  set(mark, { opacity: (1 - ramp(t, 8.55, 8.8)).toFixed(3) });
+  // lupa: entra sobre el gorila y luego viaja al centro, donde se convierte en cerebro
+  const lin = ramp(t, 8.05, 8.42, E.back), lmove = ramp(t, 8.5, 8.95, E.inOut);
+  const lx = lerp(lerp(gc.x + 320, gc.x + 30, lin), 540, lmove), ly = lerp(lerp(gc.y + 420, gc.y + 20, lin), 1000, lmove);
+  const ls = lerp(0.85, 1.25, lmove) * (1 - ramp(t, 8.9, 9.1, E.in) * 0.15);
+  set(lensG, { transform: tr(lx, ly, ls, lerp(-12, 0, lin) + lerp(0, 25, lmove)) });
+  set(lens, { opacity: (t > 8.0 ? (1 - ramp(t, 8.98, 9.15)) : 0).toFixed(3) });
+  set($('s3bg'), { opacity: ramp(t, 8.5, 8.9).toFixed(3) });
+  const bk = ramp(t, 8.85, 9.35, E.back), bOut = 0;
+  set(brainIn, { transform: tr(540, 1010, lerp(0.2, 1.08, bk) * (1 + 0.015 * Math.sin(t * 6))) });
+  set(brainG, { opacity: clamp(bk * 3).toFixed(3) });
+  set(focusSpot, { opacity: (0.85 * ramp(t, 9.3, 9.6) * (0.75 + 0.25 * Math.sin(t * 9))).toFixed(3) });
+  const rays = ramp(t, 9.15, 9.6, E.out);
+  set(brainRays, { transform: tr(540, 1010, lerp(0.7, 1.08, rays)), opacity: (rays * (1 - ramp(t, 9.75, 10))).toFixed(3) });
+  // título final: escala con rebote sutil, palabra a palabra con la voz
+  [[tCeg, 7.93], [tPor, 8.5], [tAte, 9.22]].forEach(([o, s]) => {
+    const k = ramp(t, s, s + 0.42, E.back);
+    set(o.g, { opacity: clamp(k * 2.5).toFixed(3), transform: `translate(540,${o.y - 50}) scale(${lerp(0.3, 1, k).toFixed(3)}) translate(-540,${-(o.y - 50)})` });
+  });
+  const bar = ramp(t, 9.4, 9.7, E.out);
+  set(tBar, { width: (200 * bar).toFixed(1), x: (540 - 100 * bar).toFixed(1), opacity: bar > 0 ? 1 : 0 });
+  // identidad final
+  const bi = ramp(t, 9.28, 9.7, E.back);
+  set(brand, { opacity: clamp(bi * 2).toFixed(3), transform: `translate(${(320).toFixed(1)},${(1790 + 60 * (1 - clamp(bi))).toFixed(1)}) scale(${lerp(0.6, 1, bi).toFixed(3)})` });
+  // destello de impacto al congelar
+  set($('flash'), { opacity: (0.28 * (1 - ramp(t, T.freeze, T.freeze + 0.2)) * (t >= T.freeze ? 1 : 0)).toFixed(3) });
+  drawSubs(t);
+}
+window.renderFrame = renderFrame;
+document.fonts.load('900 40px M').then(() => document.fonts.load('800 40px M')).then(() => {
+  const q = new URLSearchParams(location.search);
+  renderFrame(Number(q.get('t') || 0));
+  window.ready = true;
+});
+</script>
+</body>
+</html>
