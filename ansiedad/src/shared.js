@@ -62,3 +62,28 @@ export function alarmWave(color = 0xff2a3a) {
     },
   };
 }
+
+/** Cerebro estilizado: elipsoide con cisura central y circunvoluciones (desplazamiento procedural). */
+export function brainGeo(detail = 1) {
+  const g = new THREE.SphereGeometry(1, 120 * detail, 90 * detail), p = g.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const n = v.clone();
+    // circunvoluciones: patrón de pliegues sinuosos
+    const f1 = Math.sin(16 * n.z + 5 * Math.sin(7 * n.y + 2 * n.x)) * Math.sin(13 * n.y + 4 * Math.sin(9 * n.z));
+    const f2 = Math.sin(23 * n.x * 0.5 + 21 * n.y * 0.3 + 6 * Math.sin(11 * n.z));
+    let r = 1 + 0.045 * (Math.abs(f1) * 1.4 - 0.5) + 0.015 * f2;
+    // cisura interhemisférica
+    const mid = Math.exp(-Math.pow(n.x / 0.07, 2)) * Math.max(0, n.y + 0.2);
+    r -= 0.16 * mid;
+    // lóbulo temporal algo más bajo, base más plana
+    let y = n.y * 0.78; if (y < -0.35) y = -0.35 + (y + 0.35) * 0.4;
+    p.setXYZ(i, n.x * 0.82 * r, y * r, n.z * 1.05 * r);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+export function brainMaterial() {
+  return new THREE.MeshPhysicalMaterial({ color: 0xf2a7b9, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.3, sheen: 0.6, sheenColor: new THREE.Color(0xffd0dc), emissive: 0x7a2040, emissiveIntensity: 0.25 });
+}

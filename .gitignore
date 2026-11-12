@@ -6,3 +6,4 @@ ansiedad/render*/
 ansiedad/audio/music.wav
 ansiedad/audio/sfx.wav
 __pycache__/
+ansiedad_*.log
