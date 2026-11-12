@@ -54,8 +54,8 @@
   // Lista de vídeos publicados junto a esta página
   // parts: trozos del mismo MP4 (cada archivo publicado admite como máximo 15 MB); la página los une
   const CLIPS = [
-    { file: 'ansiedad_final_1080x1920.mp4', parts: window.FINAL_PARTS || null, title: 'Vídeo final · Ansiedad', meta: '1080 × 1920 · 30 fps · 1:41 · narración, subtítulos, títulos y efectos' },
-    { file: 'prueba_10s_1080x1920.mp4', title: 'Prueba de 10 s · Escena 01', meta: '1080 × 1920 · 30 fps · 0:10 · con narración, subtítulos y efectos' },
+    { file: 'ansiedad_final_1080x1920.mp4', parts: window.FINAL_PARTS || null, preview: 'vista_previa.mp4', poster: 'poster.jpg', label: 'Descargar MP4 (1080p · 84 MB)',
+      title: 'Vídeo final completo · Ansiedad', meta: '1:41 · 1080 × 1920 · 30 fps · narración, subtítulos, títulos y efectos. El reproductor muestra una vista previa; la descarga es en alta calidad.' },
   ].filter(c => !c.parts || c.parts.length);
   const blobs = new Map();
   async function getBlob(c) {
@@ -78,17 +78,10 @@
     el.querySelector('.meta').textContent = c.meta;
     const vid = el.querySelector('video');
     const btn = el.querySelector('button'), st = el.querySelector('.status');
-    if (c.parts) {
-      // el vídeo completo pesa ~84 MB: solo se carga cuando se pide verlo o descargarlo
-      vid.hidden = true;
-      const play = document.createElement('button'); play.type = 'button'; play.textContent = 'Ver vídeo';
-      btn.before(play);
-      play.addEventListener('click', async () => {
-        play.disabled = true; st.className = 'status'; st.textContent = 'Cargando vídeo (84 MB)…';
-        try { const b = await getBlob(c); vid.src = URL.createObjectURL(b); vid.hidden = false; play.remove(); st.textContent = ''; vid.play().catch(() => {}); }
-        catch { st.className = 'status err'; st.textContent = 'No se pudo cargar el vídeo. Vuelve a intentarlo.'; play.disabled = false; }
-      });
-    } else vid.src = c.file;
+    // el reproductor usa una vista previa ligera; la descarga entrega el archivo completo en alta calidad
+    vid.src = c.preview || c.file;
+    if (c.poster) vid.poster = c.poster;
+    if (c.label) btn.textContent = c.label;
     btn.addEventListener('click', async () => {
       st.className = 'status'; st.textContent = 'Preparando el archivo…'; btn.disabled = true;
       try {
