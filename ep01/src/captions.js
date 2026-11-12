@@ -238,8 +238,10 @@ export function makeTracking(parent, f) {
     // perspectiva: la etiqueta adopta la inclinación y escala de su ancla
     const ox = f.dx ?? 0, oy = f.dy ?? -120;
     const reveal = ramp(time, f.s + 0.05, f.s + 0.5, E.out5);
-    set(inner, { transform: `translate(${f1(A.x + ox * A.s)},${f1(A.y + oy * A.s)}) skewY(${f1(A.skew || 0)}) scale(${f3(A.s * lerp(0.85, 1, k))}) translate(0,${f1(20 * (1 - k))})` });
-    set(line, { x1: f1(A.x), y1: f1(A.y), x2: f1(lerp(A.x, A.x + ox * A.s, reveal)), y2: f1(lerp(A.y, A.y + (oy + 14) * A.s, reveal)) });
+    // la etiqueta nunca sale del encuadre (márgenes de seguridad)
+    const half = (w + 48) / 2 * A.s, lx = clamp(A.x + ox * A.s, 50 + half, 1030 - half);
+    set(inner, { transform: `translate(${f1(lx)},${f1(A.y + oy * A.s)}) skewY(${f1(A.skew || 0)}) scale(${f3(A.s * lerp(0.85, 1, k))}) translate(0,${f1(20 * (1 - k))})` });
+    set(line, { x1: f1(A.x), y1: f1(A.y), x2: f1(lerp(A.x, lx, reveal)), y2: f1(lerp(A.y, A.y + (oy + 14) * A.s, reveal)) });
     set(dot, { cx: f1(A.x), cy: f1(A.y) });
     set(g, { opacity: f3(clamp(k * 2) * (1 - out)) });
   }
