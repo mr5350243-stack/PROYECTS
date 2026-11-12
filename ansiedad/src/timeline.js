@@ -22,6 +22,15 @@ export const TRANSITIONS = [
   { from: 's01', to: 's02', type: 'dissolve', dur: 0.8, color: [1.0, 0.25, 0.3] },   // el resplandor del pecho → la onda que forma el corazón
   { from: 's02', to: 's03', type: 'fade', dur: 0.6 },                                 // dentro del cerebro → el cerebro
   { from: 's03', to: 's03b', type: 'flash', dur: 0.7, color: [1.0, 0.7, 0.4] },       // a través de la red → luz del atardecer
+  { from: 's03b', to: 's04', type: 'dissolve', dur: 0.5, color: [1.0, 0.8, 0.45] },  // la hoja que llena el plano → la tarjeta del laboratorio
+  { from: 's04', to: 's05', type: 'flash', dur: 0.6, color: [1.0, 0.45, 0.4] },      // el estímulo sin aviso → onda de sobresalto
+  { from: 's05', to: 's06', type: 'fade', dur: 0.4 },                                 // el reloj convertido en teléfono → el teléfono en su mano
+  { from: 's06', to: 's07', type: 'fade', dur: 0.4 },                                 // la burbuja convertida en calendario → el calendario
+  { from: 's07', to: 's08', type: 'flash', dur: 0.7, color: [1.0, 0.9, 0.7] },       // luces del auditorio → pulsos luminosos
+  { from: 's08', to: 's09', type: 'dissolve', dur: 0.7, color: [1.0, 0.3, 0.3] },    // pulso → pequeña alarma
+  { from: 's09', to: 's10', type: 'fade', dur: 0.7 },                                 // la luz cálida de la alarma → la lámpara
+  { from: 's10', to: 's11', type: 'flash', dur: 0.7, color: [1.0, 0.75, 0.45] },     // la escalera iluminada → el camino
+  { from: 's11', to: 's12', type: 'flash', dur: 0.9, color: [1.0, 0.85, 0.65] },     // la puerta → el apartamento
 ];
 
 export const FADE_OUT = 1.6;

@@ -1,7 +1,7 @@
 // Recursos compartidos del proyecto ANSIEDAD (reutiliza el motor, personaje y decorados de /video/src).
 import * as THREE from 'three';
 export * from '../../video/src/lib.js';
-export { Character, POSES } from '../../video/src/character.js';
+export { Character, POSES, walkPose } from '../../video/src/character.js';
 export { buildApartment, makePhone, makeClock, setEnvIntensity } from '../../video/src/sets.js';
 export { makeHero, makeFriend, P, mindSpace, glow, worryOrb, ghostMaterial, ghostify, tintCharacter } from '../../video/src/common.js';
 import { ghostMaterial } from '../../video/src/common.js';
