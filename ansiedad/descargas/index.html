@@ -48,6 +48,9 @@
 </main>
 
 <script>
+  window.FINAL_PARTS = ['partes/final_p0.mp4', 'partes/final_p1.mp4', 'partes/final_p2.mp4', 'partes/final_p3.mp4', 'partes/final_p4.mp4', 'partes/final_p5.mp4', 'partes/final_p6.mp4'];
+</script>
+<script>
   // Lista de vídeos publicados junto a esta página
   // parts: trozos del mismo MP4 (cada archivo publicado admite como máximo 15 MB); la página los une
   const CLIPS = [
@@ -74,9 +77,18 @@
     el.querySelector('h2').textContent = c.title;
     el.querySelector('.meta').textContent = c.meta;
     const vid = el.querySelector('video');
-    if (c.parts) { vid.poster = c.poster || ''; getBlob(c).then(b => { vid.src = URL.createObjectURL(b); }).catch(() => {}); }
-    else vid.src = c.file;
     const btn = el.querySelector('button'), st = el.querySelector('.status');
+    if (c.parts) {
+      // el vídeo completo pesa ~84 MB: solo se carga cuando se pide verlo o descargarlo
+      vid.hidden = true;
+      const play = document.createElement('button'); play.type = 'button'; play.textContent = 'Ver vídeo';
+      btn.before(play);
+      play.addEventListener('click', async () => {
+        play.disabled = true; st.className = 'status'; st.textContent = 'Cargando vídeo (84 MB)…';
+        try { const b = await getBlob(c); vid.src = URL.createObjectURL(b); vid.hidden = false; play.remove(); st.textContent = ''; vid.play().catch(() => {}); }
+        catch { st.className = 'status err'; st.textContent = 'No se pudo cargar el vídeo. Vuelve a intentarlo.'; play.disabled = false; }
+      });
+    } else vid.src = c.file;
     btn.addEventListener('click', async () => {
       st.className = 'status'; st.textContent = 'Preparando el archivo…'; btn.disabled = true;
       try {
