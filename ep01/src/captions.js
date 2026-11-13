@@ -13,7 +13,11 @@ const STROKE = { stroke: C.ink, 'paint-order': 'stroke', 'stroke-linejoin': 'rou
 // Rótulos editoriales: cada línea entra sobre una banda inclinada azul oscuro (con canto naranja) que se despliega;
 // el texto sube desde una máscara. Las palabras clave son más grandes y, al pronunciarse, un marcador amarillo
 // las barre (el texto pasa a azul). Salida: el texto sube y la banda se recoge. Inclinación alterna por grupo.
-export function makeClean(parent, CAPS) {
+// opts (todas opcionales; sin opts se comporta igual que en el episodio 01):
+//   edge: colores del canto de las bandas · lineTiming: cada línea entra cuando empieza a pronunciarse
+//   sober(t) → 0..1: modo sobrio (sin inclinación ni flotación) para explicaciones científicas y jurídicas
+export function makeClean(parent, CAPS, opts = {}) {
+  const EDGE = opts.edge || [C.orange, C.orange, C.yellow];
   const root = el('g', { id: 'clean' }, parent);
   const SIZE = 54, KSIZE = 68, LH = 104, SKEW = -9, MAXW = 940;
   CAPS.forEach((c, gi) => {
@@ -22,7 +26,7 @@ export function makeClean(parent, CAPS) {
     c.lineEls = c.lines.map((ln, li) => {
       const lr = el('g', {}, c.g);
       const strip = el('path', { fill: C.ink, opacity: 0.9, filter: 'url(#capShadow)' }, lr);
-      const edge = el('path', { fill: gi % 3 === 2 ? C.yellow : C.orange }, lr);
+      const edge = el('path', { fill: EDGE[gi % EDGE.length] }, lr);
       const cid = `capclip${gi}_${li}`;
       const clipR = el('rect', {}, el('clipPath', { id: cid }, lr));
       const mask = el('g', { 'clip-path': `url(#${cid})` }, lr);
@@ -75,12 +79,15 @@ export function makeClean(parent, CAPS) {
       if (!on) return;
       if (!c.laid) layout(c);
       const n = c.lineEls.length;
-      const rot = (c.idx % 2 ? 1.3 : -1.6) * (1 - 0.4 * ramp(t, c.s, c.e));
-      const fy = Math.sin(t * 1.7 + c.idx) * 3;
+      const sob = opts.sober ? opts.sober(c.s) : 0;
+      const rot = (c.idx % 2 ? 1.3 : -1.6) * (1 - 0.4 * ramp(t, c.s, c.e)) * (1 - sob);
+      const fy = Math.sin(t * 1.7 + c.idx) * 3 * (1 - sob);
       set(c.g, { opacity: f3(1 - hide), transform: `translate(540,${f1(y0 + fy)}) rotate(${f1(rot)})` });
       const ke = ramp(t, c.e - 0.17, c.e - 0.01, E.in);
       c.lineEls.forEach((L, li) => {
-        const d = li * 0.08, off = n > 1 ? (li ? 26 : -26) : 0;
+        // la segunda línea no se muestra antes de que se pronuncie su primera palabra
+        const d = opts.lineTiming ? Math.max(li * 0.08, (c.lines[li][0][1] - c.s) - 0.04) : li * 0.08;
+        const off = n > 1 ? (li ? 26 : -26) * (1 - 0.6 * sob) : 0;
         const ly = (li - (n - 1) / 2) * LH + 24;
         set(L.lr, { transform: `translate(${f1(off)},${f1(ly)}) scale(${f3(L.fit)})` });
         // banda: se despliega desde la izquierda y se recoge hacia la derecha
@@ -95,7 +102,7 @@ export function makeClean(parent, CAPS) {
           if (!W_.key) return;
           const kh = ramp(t, W_.ws - 0.06, W_.ws + 0.16, E.out);
           set(W_.hl, { transform: `translate(${f1(W_.hx)},0) scale(${f3(Math.max(0.001, kh))},1) translate(${f1(-W_.hx)},0) skewX(${SKEW})` });
-          set(W_.sp, { fill: kh > 0.45 ? C.ink : C.yellow });
+          set(W_.sp, { fill: kh > 0.97 ? C.ink : C.yellow });   // cambia de color solo cuando el marcador cubre la palabra entera
         });
       });
     });
@@ -275,9 +282,9 @@ export function makeStack(parent, f) {
 }
 
 // ---------------------------------------------------------------- orquestador
-export function makeCaptionSystem(parent, CAPS, FX) {
+export function makeCaptionSystem(parent, CAPS, FX, opts = {}) {
   const fxLayer = el('g', { id: 'fx' }, parent);
-  const clean = makeClean(el('g', {}, parent), CAPS);
+  const clean = makeClean(el('g', {}, parent), CAPS, opts);
   const make = { A: makeImpact, B: makeMorph, C: makeNumber, D: makeTracking, S: makeStack };
   const items = FX.map(f => ({ f, r: make[f.type](fxLayer, f) }));
   return {

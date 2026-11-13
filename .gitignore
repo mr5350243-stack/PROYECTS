@@ -22,3 +22,8 @@ ep01/render/
 ep01/output/*/
 ep01/descargas/*.mp4
 ep01/descargas/partes/
+ep02/output/*/
+ep02/output/*.png
+ep02/audio/mix_pre.wav
+ep02/audio/voz.wav
+ep02/render/
