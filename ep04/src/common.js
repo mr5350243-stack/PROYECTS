@@ -71,3 +71,15 @@ export function makeSpeech(parent, { w = 260, h = 140, fill = C.white, tail = 1 
   const inner = el('g', {}, g);
   return { g, inner };
 }
+
+// postura de brazos cruzados y gestos (coordenadas locales del personaje)
+export const CROSS = { handB: { x: 38, y: -206 }, handF: { x: -22, y: -198 } };
+export const OPEN_PALM = (k = 1) => ({ handB: { x: -36, y: -150 }, handF: { x: lerp(40, 120, k), y: lerp(-150, -250, k) } });
+// etiqueta de la señal (número + título), arriba a la izquierda dentro de la zona segura
+export function makeBadge(parent, i) {
+  const g = el('g', { opacity: 0 }, parent);
+  el('circle', { cx: 0, cy: 0, r: 44, fill: C.yellow }, g);
+  el('text', { x: 0, y: 17, 'font-size': 50, 'font-weight': 900, fill: C.navy, 'text-anchor': 'middle' }, g).textContent = String(i + 1);
+  const t = el('text', { x: 66, y: 12, 'font-size': 34, 'font-weight': 900, fill: C.white, 'letter-spacing': 2 }, g); t.textContent = `SEÑAL ${i + 1} · ${CARD_TITLES[i]}`;
+  return { g, show(t_, a, b) { const k = ramp(t_, a, a + 0.4, E.back), o = ramp(t_, b - 0.3, b); set(g, { opacity: f3(clamp(k * 2) * (1 - o)), transform: tr(90 - 40 * (1 - k), 150, lerp(0.6, 0.8, k)) }); } };
+}
