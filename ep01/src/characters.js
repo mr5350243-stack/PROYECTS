@@ -69,6 +69,14 @@ export function drawPerson(P, st) {
   set(P.body, { transform: `translate(0,${f1(-bob)}) rotate(${f1(st.lean || 0)})` });
   const hipY = -150, sw = Math.sin(st.phase) * 34 * st.stride, lift = (k) => Math.max(0, Math.sin(st.phase + k)) * 26 * st.stride;
   const legs = [[P.legB, P.shoeB, -12, sw, lift(0)], [P.legF, P.shoeF, 12, -sw, lift(Math.PI)]];
+  if (st.sit) {   // sentado: el cuerpo baja 70 px; muslo horizontal y espinilla vertical (silla a cargo de la escena)
+    set(P.body, { transform: `translate(0,${f1(70 * st.sit - bob)}) rotate(${f1(st.lean || 0)})` });
+    for (const [path, shoe, hx] of legs) {
+      const kx = hx + 78 * st.sit, ky = hipY, fy = -80 + 70 * (1 - st.sit);
+      set(path, { d: `M ${hx} ${hipY} L ${f1(kx)} ${f1(ky + (1 - st.sit) * 70)} L ${f1(kx)} ${f1(fy)}` });
+      set(shoe, { cx: f1(kx + 8), cy: f1(fy + 6) });
+    }
+  } else
   for (const [path, shoe, hx, fx, fl] of legs) {
     const k = ik(hx, hipY, hx + fx, -10 - fl + bob, 78, 78, -1);
     set(path, { d: `M ${hx} ${hipY} L ${f1(k.jx)} ${f1(k.jy)} L ${f1(k.tx)} ${f1(k.ty)}` });

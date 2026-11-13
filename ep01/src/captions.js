@@ -65,9 +65,20 @@ export function makeClean(parent, CAPS, opts = {}) {
           const xa = L.t.getStartPositionOfChar(ci).x, xb = L.t.getEndPositionOfChar(ci + n - 1).x;
           W_.hl = el('rect', { x: f1(xa - 8), y: f1(-KSIZE * 0.82), width: f1(xb - xa + 16), height: f1(KSIZE * 1.0), rx: 6, fill: C.yellow, transform: `skewX(${SKEW})` }, L.hls);
           W_.hx = xa - 8; W_.hw = xb - xa + 16;
+          L.hasHL = true;
         }
         ci += n + 1;
       });
+      // copia oscura del texto recortada por los marcadores: la palabra se lee en todo momento del barrido
+      if (L.hasHL) {
+        const cid = `capmk${c.idx}_${li}`;
+        const cp = el('clipPath', { id: cid }, L.move);
+        L.words.forEach(W_ => { if (W_.key) W_.cr = el('rect', { x: f1(W_.hx), y: f1(-KSIZE * 0.82), width: f1(W_.hw), height: f1(KSIZE * 1.0), transform: `skewX(${SKEW})` }, cp); });
+        const dark = L.t.cloneNode(true);
+        dark.querySelectorAll('tspan').forEach(sp => sp.setAttribute('fill', C.ink));
+        dark.setAttribute('fill', C.ink); dark.setAttribute('clip-path', `url(#${cid})`);
+        L.move.appendChild(dark);
+      }
     });
     c.laid = true;
   }
@@ -101,8 +112,8 @@ export function makeClean(parent, CAPS, opts = {}) {
         L.words.forEach(W_ => {
           if (!W_.key) return;
           const kh = ramp(t, W_.ws - 0.06, W_.ws + 0.16, E.out);
-          set(W_.hl, { transform: `translate(${f1(W_.hx)},0) scale(${f3(Math.max(0.001, kh))},1) translate(${f1(-W_.hx)},0) skewX(${SKEW})` });
-          set(W_.sp, { fill: kh > 0.97 ? C.ink : C.yellow });   // cambia de color solo cuando el marcador cubre la palabra entera
+          const mt = `translate(${f1(W_.hx)},0) scale(${f3(Math.max(0.001, kh))},1) translate(${f1(-W_.hx)},0) skewX(${SKEW})`;
+          set(W_.hl, { transform: mt }); if (W_.cr) set(W_.cr, { transform: mt });
         });
       });
     });
@@ -140,6 +151,16 @@ export function makeImpact(parent, f) {
 // ---------------------------------------------------------------- TIPO B
 // Registro de transformaciones palabra → objeto. Cada una recibe las letras (con su centro) y devuelve render(k, time, ctx).
 export const MORPHS = {
+  // «CONTROL»: la primera O se convierte en un círculo rojo que se cierra; el resto de letras se aparta
+  ring(g, letters, f) {
+    const O = letters.find(L => L.ch === 'O');
+    const c = el('circle', { r: f.size * 0.34, fill: 'none', stroke: '#b3273a', 'stroke-width': f.size * 0.11, 'stroke-linecap': 'round' }, g);
+    return (k, time) => {
+      letters.forEach(L => set(L.t, { opacity: f3(L === O ? 1 - ramp(k, 0.1, 0.3) : 1 - ramp(k, 0.55, 0.9)), transform: L === O ? '' : `translate(${f1((L.cx - O.cx) * 0.25 * ramp(k, 0.3, 0.8, E.inOut))},0)` }));
+      const r = f.size * lerp(0.34, 0.6, ramp(k, 0.3, 1, E.inOut)), circ = 2 * Math.PI * r, close = ramp(k, 0.15, 0.85, E.inOut);
+      set(c, { cx: f1(O.cx), cy: f1(O.cy), r: f1(r), 'stroke-dasharray': `${f1(circ * lerp(0.15, 1, close))} ${f1(circ)}`, transform: `rotate(${f1(-90 + 200 * (1 - close))} ${f1(O.cx)} ${f1(O.cy)})`, opacity: f3(ramp(k, 0.05, 0.2)) });
+    };
+  },
   // «OJOS»: las dos O se convierten en ojos ilustrados que parpadean y miran; la J y la S se desvanecen.
   eyes(g, letters, f) {
     const eyes = letters.filter(L => L.ch === 'O').map(L => {
