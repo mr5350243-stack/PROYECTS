@@ -65,3 +65,25 @@ export function makeAvatar(parent, { r = 40, shirt = '#3a5cb8', skin = '#e8b48c'
   el('path', { d: `M ${-r * 0.4} ${-r * 0.2} Q 0 ${-r * 0.75} ${r * 0.4} ${-r * 0.2} Q ${r * 0.1} ${-r * 0.42} ${-r * 0.4} ${-r * 0.2} Z`, fill: hair }, inner);
   return g;
 }
+
+// tarjeta de perfil (interfaz inspirada en redes sociales, sin nombres reales)
+export function makeProfile(parent, i = 0) {
+  const g = el('g', {}, parent);
+  const SH = ['#3a5cb8', '#2a3a6e', '#5a6a96', '#1f3a80', '#3a4f8f', '#4a5f9f'], SK = ['#e8b48c', '#c98d63', '#8a5a3c', '#f1c7a1', '#a8714b', '#d9a37c'], HA = ['#3b2416', '#14110f', '#2a1b12', '#6b3f1f', '#121212', '#5a3a22'];
+  el('rect', { x: -110, y: -150, width: 220, height: 300, rx: 22, fill: '#020617', opacity: 0.35, transform: 'translate(6,10)' }, g);
+  const card = el('rect', { x: -110, y: -150, width: 220, height: 300, rx: 22, fill: '#f6f3ec' }, g);
+  const ring = el('rect', { x: -110, y: -150, width: 220, height: 300, rx: 22, fill: 'none', stroke: C.yellow, 'stroke-width': 8, opacity: 0 }, g);
+  const av = makeAvatar(g, { r: 62, shirt: SH[i % 6], skin: SK[i % 6], hair: HA[i % 6] }); set(av, { transform: 'translate(0,-56)' });
+  el('rect', { x: -70, y: 30, width: 140, height: 16, rx: 8, fill: '#c9cfe0' }, g);
+  el('rect', { x: -50, y: 58, width: 100, height: 12, rx: 6, fill: '#d9dde8' }, g);
+  const chip = el('g', { transform: 'translate(0,108)' }, g);
+  return { g, card, ring, chip };
+}
+// corazones de interés (n llenos de 3) o «?»
+export function interestChip(parent, n, color) {
+  const g = el('g', {}, parent);
+  if (n < 0) { el('circle', { r: 26, fill: C.yellow }, g); el('text', { x: 0, y: 12, 'font-size': 36, 'font-weight': 900, fill: C.ink, 'text-anchor': 'middle' }, g).textContent = '?'; return g; }
+  for (let k = 0; k < 3; k++) el('path', { d: 'M 0 10 C -24 -6 -14 -26 0 -14 C 14 -26 24 -6 0 10 Z', fill: k < n ? color : '#c9cfe0', transform: `translate(${(k - 1) * 38},0) scale(1.1)` }, g);
+  return g;
+}
+export const HEART = 'M 0 10 C -24 -6 -14 -26 0 -14 C 14 -26 24 -6 0 10 Z';
