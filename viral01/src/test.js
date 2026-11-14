@@ -101,7 +101,7 @@ export function create(layer) {
       set(flash, { opacity: f3(0.5 * (1 - ramp(t, 19.5, 19.8)) * (t >= 19.5 ? 1 : 0) + 0.35 * (1 - ramp(t, 4.45, 4.75)) * (t >= 4.45 ? 1 : 0) * (t < 5 ? 1 : 0)) });
       // 0–4.4: gancho y cuenta atrás
       if (t < 4.6 || t > 39.4) {
-        const L = t > 39.4 ? 1 : 0;
+        const L = (t > 39.4 || t < 2.4) ? 1 : 0;   // el reto se ve desde el fotograma 0 (portada y bucle)
         pop(h1, L || ramp(t, 0.0, 0.3, E.back), 540, 330); pop(h2, L || ramp(t, 0.25, 0.6, E.back), 540, 520, 1, -2); pop(h3, L || ramp(t, 0.6, 0.95, E.back), 540, 630, 1, -2);
         pop(h4, L || ramp(t, 1.2, 1.5, E.back), 540, 740);
         const out = t > 39.4 ? 0 : ramp(t, 2.4, 2.6);
