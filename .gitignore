@@ -37,3 +37,8 @@ ep04/output/*.png
 ep04/audio/mix_pre.wav
 ep04/audio/voz.wav
 ep04/render/
+ep05/output/*/
+ep05/output/*.png
+ep05/audio/mix_pre.wav
+ep05/audio/voz.wav
+ep05/render/
