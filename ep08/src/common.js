@@ -53,3 +53,21 @@ export function phoneMsg(parent, { w = 300, out = false, heart = false, text = n
   else for (let k = 0; k < lines; k++) el('rect', { x: (out ? -w : 0) + 26, y: -14 + k * 26, width: (w - 52) * (k ? 0.6 : 1), height: 12, rx: 6, fill: out ? '#ffd0c8' : '#c9cfe0' }, g);
   return g;
 }
+
+// pregunta flotante (píldora)
+export function makeQ(parent, text, { bg = '#f6f3ec', fg = '#0b1636', size = 34 } = {}) {
+  const g = el('g', { opacity: 0 }, parent);
+  const t = el('text', { x: 0, y: size * 0.35, 'font-size': size, 'font-weight': 900, fill: fg, 'text-anchor': 'middle' }, g); t.textContent = text;
+  const w = t.getComputedTextLength() + size * 1.4;
+  g.insertBefore(el('rect', { x: -w / 2, y: -size * 0.9, width: w, height: size * 1.8, rx: size * 0.9, fill: bg }), t);
+  return g;
+}
+export function makeLogo(parent) {
+  const brand = el('g', { opacity: 0 }, parent);
+  el('rect', { x: -80, y: -80, width: 160, height: 160, rx: 40, fill: C.orange }, brand);
+  el('text', { x: 0, y: 46, 'font-size': 128, 'font-weight': 900, fill: C.white, 'text-anchor': 'middle' }, brand).textContent = '?';
+  el('circle', { cx: 62, cy: -62, r: 22, fill: C.yellow, stroke: C.navy, 'stroke-width': 6 }, brand);
+  el('text', { x: 0, y: 160, 'font-size': 44, 'font-weight': 800, fill: C.white, 'text-anchor': 'middle', 'letter-spacing': 10 }, brand).textContent = 'DETRÁS DEL';
+  el('text', { x: 0, y: 250, 'font-size': 104, 'font-weight': 900, fill: C.yellow, 'text-anchor': 'middle' }, brand).textContent = 'PORQUÉ';
+  return brand;
+}
