@@ -46,3 +46,8 @@ viral01/output/*/
 viral01/output/*.png
 viral01/audio/mix_pre.wav
 viral01/render/
+ep08/output/*/
+ep08/output/*.png
+ep08/audio/mix_pre.wav
+ep08/audio/voz.wav
+ep08/render/
