@@ -42,3 +42,7 @@ ep05/output/*.png
 ep05/audio/mix_pre.wav
 ep05/audio/voz.wav
 ep05/render/
+viral01/output/*/
+viral01/output/*.png
+viral01/audio/mix_pre.wav
+viral01/render/
